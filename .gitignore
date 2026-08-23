@@ -47,5 +47,6 @@ uvx.exe
 # Logs
 *.log
 
-# test txts and mds
+# test txts, mds and generated article
 /documents
+/src/output

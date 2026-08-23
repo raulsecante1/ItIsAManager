@@ -1,4 +1,4 @@
-from pathlib import Path
+import pathlib
 from dotenv import load_dotenv
 import os
 
@@ -66,7 +66,9 @@ SUBAGENT_MIDDLEWARE = SubAgentMiddleware(
             "description": "Investigate agent",
             "system_prompt": SUB_AGENT_PROMPT,
             "model": SUBAGENT_LLM,
-            "tools": [iagt.read_note],
+            "tools": [iagt.read_note,
+                      iagt.list_readable_files,
+                      ],
             "api_key": PROVIDER_API_KEY,
             "base_url":PROVIDER_BASE_URL,
         }
@@ -86,7 +88,7 @@ MAIN_AGENT_LLM = ChatOpenRouter(
 )
 
 ######################  path #####################################
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROJECT_ROOT = pathlib.Path(__file__).parent.parent.parent
 
 ARTICLE_PATH = PROJECT_ROOT / "output" / "generated_article.md"
 ARTICLE_PATH.parent.mkdir(parents=True, exist_ok=True)

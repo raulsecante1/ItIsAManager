@@ -24,6 +24,13 @@ class KnowledgeChunk (pydantic.BaseModel):
     key_terms: str
     summary: str = pydantic.Field(min_length=1, max_length=100)
 
+class KnowledgeChunks (pydantic.BaseModel):
+    """
+    knowledge chunk lists to avoid the typeError
+    """
+
+    knowledge_chunk: list[KnowledgeChunk]
+
 class Chapter (pydantic.BaseModel):
     """
     chapter blueprints served for building the article outline

@@ -1,6 +1,5 @@
-from pathlib import Path
+import pathlib
 import tiktoken
-import typing
 
 from langchain.tools import tool
 
@@ -9,13 +8,13 @@ import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
 
 @tool
-def read_note(path: str) -> typing.List[isma.KnowledgeChunk]:
+def read_note(path: str) -> isma.KnowledgeChunks:
     """
-    use this function to read a file and then generate varios KnowledgeChunk based on the file's content
+    use this function to read a file with the give path and then generate varios KnowledgeChunk based on the file's content
     """
 
     extractor = iset.EXTRACTION_LLM.with_structured_output(
-        typing.List[isma.KnowledgeChunk]
+        isma.KnowledgeChunks
     )
 
     file_content = iutl.read_file(path)
@@ -69,11 +68,31 @@ def read_note(path: str) -> typing.List[isma.KnowledgeChunk]:
 
 
 @tool
+def list_readable_files(directory_path: str) -> dict[str, list[str]]:
+    """
+    use this function to list all the readable files in the given directory path
+    """
+
+    files = {}
+
+    path = pathlib.Path(directory_path)
+    if not path.exists():
+        raise FileNotFoundError(f"directory dose not exist: {directory_path}")
+    if not path.is_dir():
+        raise ValueError(f"path is not a directory use read_note() instead: {directory_path}")
+    
+    files["markdown_file"] = [str(p) for p in list(path.rglob("*.md"))]
+    files["text_file"] = [str(p) for p in list(path.rglob("*.txt"))]
+
+    return files    
+
+
+@tool
 def write_article(finalDraft: isma.FinalDraft):
     """
     use this function to write back the generated FinalDraft into disk
     """
-    path = Path(iset.ARTICLE_PATH)
+    path = pathlib.Path(iset.ARTICLE_PATH)
 
     path.write_text(
         finalDraft.content,
