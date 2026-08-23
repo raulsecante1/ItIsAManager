@@ -49,4 +49,4 @@ uvx.exe
 
 # test txts, mds and generated article
 /documents
-/src/output
+/output

@@ -16,16 +16,28 @@ MPKN is a Multi-agent project based on  *LangChain*, that able to read the docum
 
 ## Workflow
 
+The `main_agent` receives the reuqest from the user like:
+
+```
+You are an expert article generation agent.
+Now i need you to read the files at "documents/" then generate an article based on it
+```
+
+Then create a `sub_agent` as an investigator, which has the tool to `list` and `read` the files from the path give by the user, between them the `read` tool will start some `llm_models` to read the `exact_content` of the file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
+
+After that some other `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`.
+
+When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft`, then the `main_agent` will use its tool `write` to wirte down the article
+
 ```mermaid
 graph TD
     A[User Request] --> B(Master Agent)
-    B --> C{Need more files?}
+    B --> C{Need to read files?}
     C -->|Yes| D[Call SubAgent: Investigator]
     D --> E[Call read_note tool]
     E --> F[Return KnowledgeChunk list]
     F --> B
-    C -->|No| G[Master Agent: Force synthesize_outline]
-    G --> H[Generate ArticleOutline]
+    C -->|No| H[Generate ArticleOutline]
     H --> I[Generate FinalDraft by chapters]
     I --> J[RubricMiddleware: Self-score]
     J -->|Score < 8| K[Revise draft with feedback]
@@ -36,8 +48,10 @@ graph TD
 
 ## Tech stack and Environment
 
-- Python 3.11+
-- `LangChain` / `LangGraph` / `LangSmith`
+- Python 3.13.5
+- `LangChain`
+- `LangGraph`
+- `DeepAgents`
 - LLM API
 - Management via `uv`
 
