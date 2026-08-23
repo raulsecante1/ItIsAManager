@@ -2,9 +2,9 @@ import logging
 import sys
 
 
-def setup_logging() -> None:
+def setup_logging(lvl=logging.INFO) -> None:
     logging.basicConfig(
-        level=logging.INFO,
+        level=lvl,
         format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
@@ -14,3 +14,7 @@ def setup_logging() -> None:
             ),
         ],
     )
+
+    # Enable httpx and OpenRouter log
+    logging.getLogger("httpx").setLevel(logging.DEBUG)
+    logging.getLogger("openrouter").setLevel(logging.DEBUG)

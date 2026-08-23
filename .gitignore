@@ -46,3 +46,6 @@ uvx.exe
 
 # Logs
 *.log
+
+# test txts and mds
+/documents

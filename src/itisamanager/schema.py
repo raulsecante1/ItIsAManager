@@ -21,8 +21,8 @@ class KnowledgeChunk (pydantic.BaseModel):
     """
 
     title: str
-    key_term: str
-    summary: str = pydantic.Field(min_length=1, max_length=101)
+    key_terms: str
+    summary: str = pydantic.Field(min_length=1, max_length=100)
 
 class Chapter (pydantic.BaseModel):
     """
@@ -39,7 +39,7 @@ class ArticleOutline (pydantic.BaseModel):
 
     title: str
     chapters: list[Chapter]
-    summary: list[str]
+    overall_strategy: str = pydantic.Field(min_length=1, max_length=150)
 
 class FinalDraft (pydantic.BaseModel):
     """

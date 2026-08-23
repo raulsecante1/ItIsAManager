@@ -8,7 +8,11 @@ MPKN is a Multi-agent project based on  *LangChain*, that able to read the docum
 
 ## Quick Start
 
+1. Clone the project
 
+1. Install `uv` or create a virtual environment via`-venv`
+
+1. run the project via `uv run itisamaster` or `python main.py` the other case
 
 ## Workflow
 
@@ -51,4 +55,5 @@ src/agent_project/
 │   ├── utils.py            # Varios utilities
 │   └── reader.py           # Varios file readers for distinct file formats
 └── agent/                  # Agent
+│   └── agent.py            # 
 ```

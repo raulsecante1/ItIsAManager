@@ -1,20 +1,21 @@
+from pathlib import Path
 import tiktoken
+import typing
 
 from langchain.tools import tool
-
 
 import itisamanager.schema as isma
 import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
 
 @tool
-def read_note(path: str) -> list[isma.KnowledgeChunk]:
+def read_note(path: str) -> typing.List[isma.KnowledgeChunk]:
     """
     use this function to read a file and then generate varios KnowledgeChunk based on the file's content
     """
 
     extractor = iset.EXTRACTION_LLM.with_structured_output(
-        list[isma.KnowledgeChunk]
+        typing.List[isma.KnowledgeChunk]
     )
 
     file_content = iutl.read_file(path)
@@ -64,14 +65,17 @@ def read_note(path: str) -> list[isma.KnowledgeChunk]:
             """
         )
 
-    
-
     return result
 
 
 @tool
-def write_article(content: isma.FinalDraft):
+def write_article(finalDraft: isma.FinalDraft):
     """
-    use this function to write back the generated FinalDraft into a file
+    use this function to write back the generated FinalDraft into disk
     """
-    pass
+    path = Path(iset.ARTICLE_PATH)
+
+    path.write_text(
+        finalDraft.content,
+        encoding="utf-8",
+    )
