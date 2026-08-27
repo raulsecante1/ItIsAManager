@@ -7,6 +7,7 @@ class Document(pydantic.BaseModel):
     content: str
     source: str
 
+
 class ChunkText(pydantic.BaseModel):
     """
     chunks of the extracted Document
@@ -14,6 +15,7 @@ class ChunkText(pydantic.BaseModel):
     content: str
     source: str
     index: int
+
 
 class KnowledgeChunk (pydantic.BaseModel):
     """
@@ -24,12 +26,14 @@ class KnowledgeChunk (pydantic.BaseModel):
     key_terms: str
     summary: str = pydantic.Field(min_length=1, max_length=700) # by avenge 5-6 char = 1 words, so plus 1 ' ', 6-7 chars
 
+
 class KnowledgeChunks (pydantic.BaseModel):
     """
-    knowledge chunk lists to avoid the typeError
+    knowledge chunk lists to avoid the typeError in agent_tool.read_note()
     """
 
     knowledge_chunk: list[KnowledgeChunk]
+
 
 class Chapter (pydantic.BaseModel):
     """
@@ -38,6 +42,7 @@ class Chapter (pydantic.BaseModel):
 
     title: str
     key_points: list[str]
+
 
 class ArticleOutline (pydantic.BaseModel):
     """
@@ -48,6 +53,7 @@ class ArticleOutline (pydantic.BaseModel):
     chapters: list[Chapter]
     overall_strategy: str = pydantic.Field(min_length=1, max_length=350)
 
+
 class FinalDraft (pydantic.BaseModel):
     """
     the final output
@@ -57,3 +63,10 @@ class FinalDraft (pydantic.BaseModel):
     outline: ArticleOutline
 
 
+class Rubric (pydantic.BaseModel):
+    """
+    ouput class for rubric
+    """
+
+    score: int = pydantic.Field(ge=0, le=10)
+    feedback: str = pydantic.Field(min_length=1, max_length=700)

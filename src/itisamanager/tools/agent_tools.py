@@ -28,7 +28,7 @@ def read_note(path: str) -> isma.KnowledgeChunks:
 
     file_content = iutl.read_file(path)
 
-    encoder = tiktoken.get_encoding("cl100k_base")
+    encoder = tiktoken.get_encoding("cl100k_base") #calculate the token usage to decide if to batch or not
 
     estimate_tokens = len(encoder.encode(file_content.content))
     if estimate_tokens > iset.EXTRACTION_MODEL_TOKEN_LIMIT:
@@ -134,7 +134,7 @@ def write_article(finalDraft: isma.FinalDraft):
     """
     use this function to write back the generated FinalDraft into disk
     """
-    path = pathlib.Path(iset.ARTICLE_PATH)
+    path = iutl.get_unique_path(pathlib.Path(iset.ARTICLE_PATH))
 
     path.write_text(
         finalDraft.content,
@@ -179,7 +179,7 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
 
 
 @tool
-def generate_article(outline: isma.ArticleOutline) -> isma.FinalDraft:
+def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) -> isma.FinalDraft:
     """
     generate final draft of the article from the outline and the chapters using LLM model not agent
     """
@@ -198,6 +198,9 @@ def generate_article(outline: isma.ArticleOutline) -> isma.FinalDraft:
     The chapters:
     {all_chapters}
     """
+
+    if feedback:
+        article_prompt + f"\n\nThe feedback:\n{feedback}"
 
     content_str = iset.MAIN_AGENT_LLM.invoke(article_prompt)
 
