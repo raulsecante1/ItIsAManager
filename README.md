@@ -3,7 +3,7 @@
 Multi-Agent Personal Knowledge Manager (MPKN)
 
 - custom state graph version at manual_state_graph branch
-- ReAct and MCP at react_mcp branch
+- ReAct and MCP version at react_mcp branch
 
 ## What it is?
 
