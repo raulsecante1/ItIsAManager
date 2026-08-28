@@ -156,5 +156,7 @@ def main_agent_flow(user_query: str, dir_path: str):
     agent_graph = main_builder.compile()
     agent_graph.invoke(initial_state, config={"recursion_limit": 13})  # 3 circles at maximum
 
+    print(agent_graph.get_graph().draw_mermaid()) # get the mermaid chart of the graph
+
     return f"Article written at {iset.ARTICLE_PATH.parent}"
 

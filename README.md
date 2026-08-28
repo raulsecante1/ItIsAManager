@@ -30,20 +30,16 @@ After that some other `llm_models` will be started to generate `outline`, `chapt
 When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft`, then the `main_agent` will use its tool `write` to wirte down the article
 
 ```mermaid
-graph TD
-    A[User Request] --> B(Master Agent)
-    B --> C{Need to read files?}
-    C -->|Yes| D[Call SubAgent: Investigator]
-    D --> E[Call read_note tool]
-    E --> F[Return KnowledgeChunk list]
-    F --> B
-    C -->|No| H[Generate ArticleOutline]
-    H --> I[Generate FinalDraft by chapters]
-    I --> J[RubricMiddleware: Self-score]
-    J -->|Score < 8| K[Revise draft with feedback]
-    K --> I
-    J -->|Score >= 8| L[Call write_article tool]
-    L --> M[Write to disk]
+graph TD;
+  __start__([__start__]) --> investigator_node;
+  investigator_node --> outline_node;
+  outline_node --> article_node;
+  article_node --> rubirc_node;
+  rubirc_node -->|write| write_file_node;
+  rubirc_node -->|revise| revise_draft_node;
+  rubirc_node -->|outline| outline_node;
+  revise_draft_node --> rubirc_node;
+  write_file_node --> __end__([__end__]);
 ```
 
 ## Tech stack and Environment
