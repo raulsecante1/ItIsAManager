@@ -102,6 +102,16 @@ def read_note(path: str) -> isma.KnowledgeChunks:
 
     logger.info(f"[read_note] Extracted {len(result.knowledge_chunk)} chunks")
 
+    for chunk in result.knowledge_chunk:
+        if not chunk.title or chunk.title.strip() == "":
+
+            # take the first 3 words from summary if summary presents
+            if chunk.summary:
+                words = chunk.summary.split()[:3]
+                chunk.title = " ".join(words) + "..."
+            else:
+                chunk.title = "Untitled"
+
     return result
 
 
