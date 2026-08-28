@@ -47,7 +47,6 @@ graph TD;
 - Python 3.13.5
 - `LangChain`
 - `LangGraph`
-- `DeepAgents`
 - LLM API
 - Management via `uv`
 
