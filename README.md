@@ -2,6 +2,9 @@
 
 Multi-Agent Personal Knowledge Manager (MPKN)
 
+- custom state graph version at manual_state_graph branch
+- ReAct and MCP at react_mcp branch
+
 ## What it is?
 
 MPKN is a Multi-agent project based on  *LangChain*, that able to read the documents, notes, summarize the key points, and then generate new contests based on the summaries.
