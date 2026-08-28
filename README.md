@@ -16,18 +16,22 @@ MPKN is a Multi-agent project based on  *LangChain*, that able to read the docum
 
 ## Workflow
 
-The `main_agent` receives the reuqest from the user like:
+The `main_agent_flow` receives the reuqest from the user like:
 
 ```
 You are an expert article generation agent.
 Now i need you to read the files at "documents/" then generate an article based on it
 ```
 
-Then create a `sub_agent` as an investigator, which has the tool to `list` and `read` the files from the path give by the user, between them the `read` tool will start some `llm_models` to read the `exact_content` of the file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
+And a path `/documents`
 
-After that some other `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`.
+Then creates and lanchs the `agent_graph`, the first node is the investigator_node, which list and decide which 5 (by default) files to read and then start some `llm_models` to read the `exact_content` of the file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
 
-When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft`, then the `main_agent` will use its tool `write` to wirte down the article
+After that comes to the `outline_node` where some `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`s.
+
+When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft` at the `generate_article_node`, then the `rubric_node` will starts to evaluate the article.
+
+Based on the rubric result, the `rubric_conditional_branch` will lead the flow to `outline_node`, `write_node` or `revise_draft_node`
 
 ```mermaid
 graph TD;
@@ -64,5 +68,5 @@ src/agent_project/
 │   ├── utils.py            # Varios utilities
 │   └── reader.py           # Varios file readers for distinct file formats
 └── agent/                  # Agent
-│   └── agent.py            # 
+    └── agent.py            # 
 ```
