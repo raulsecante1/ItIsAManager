@@ -24,7 +24,7 @@ class KnowledgeChunk (pydantic.BaseModel):
 
     title: str
     key_terms: str
-    summary: str = pydantic.Field(min_length=1, max_length=700) # by avenge 5-6 char = 1 words, so plus 1 ' ', 6-7 chars
+    summary: str = pydantic.Field(min_length=1, max_length=750) # by avenge 5-6 char = 1 words, so plus 1 ' ', 6-7 chars, plus 50 as insurance
 
 
 class KnowledgeChunks (pydantic.BaseModel):
@@ -51,7 +51,7 @@ class ArticleOutline (pydantic.BaseModel):
 
     title: str
     chapters: list[Chapter]
-    overall_strategy: str = pydantic.Field(min_length=1, max_length=350)
+    overall_strategy: str = pydantic.Field(min_length=1, max_length=1050)
 
 
 class FinalDraft (pydantic.BaseModel):
@@ -69,4 +69,4 @@ class Rubric (pydantic.BaseModel):
     """
 
     score: int = pydantic.Field(ge=0, le=10)
-    feedback: str = pydantic.Field(min_length=1, max_length=700)
+    feedback: str = pydantic.Field(min_length=1, max_length=2100)

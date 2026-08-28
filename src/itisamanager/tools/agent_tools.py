@@ -2,10 +2,6 @@ import pathlib
 import tiktoken
 import logging
 
-from langgraph.types import Command
-from langchain.tools import tool, ToolRuntime
-from langchain.messages import ToolMessage
-
 import itisamanager.schema as isma
 import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
@@ -14,7 +10,6 @@ import itisamanager.agent.agent as iagt
 logger = logging.getLogger(__name__)
 
 
-@tool
 def read_note(path: str) -> isma.KnowledgeChunks:
     """
     use this function to read a file with the give path and then generate varios KnowledgeChunk based on the file's content
@@ -58,7 +53,8 @@ def read_note(path: str) -> isma.KnowledgeChunks:
                 }
             )
 
-            result = [b for a in preflatten_result for b in a]
+            flattened = [item for sublist in preflatten_result for item in sublist]
+            result = isma.KnowledgeChunks(knowledge_chunk=flattened)
 
         except Exception as e:
             error_msg = str(e)
@@ -109,7 +105,6 @@ def read_note(path: str) -> isma.KnowledgeChunks:
     return result
 
 
-@tool
 def list_readable_files(directory_path: str) -> dict[str, list[str]]:
     """
     use this function to list all the readable files in the given directory path
@@ -129,7 +124,6 @@ def list_readable_files(directory_path: str) -> dict[str, list[str]]:
     return files    
 
 
-@tool
 def write_article(finalDraft: isma.FinalDraft):
     """
     use this function to write back the generated FinalDraft into disk
@@ -146,7 +140,6 @@ def write_article(finalDraft: isma.FinalDraft):
     return "file written"
 
 
-@tool
 def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOutline:
     """
     generate a article outline and chapters from the knowledge chunks using LLM model not agent
@@ -178,7 +171,6 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
     return structured_llm.invoke(outline_prompt)
 
 
-@tool
 def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) -> isma.FinalDraft:
     """
     generate final draft of the article from the outline and the chapters using LLM model not agent
@@ -206,4 +198,4 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) 
 
     logger.info(f"[generate_article] Generated the article")
     
-    return isma.FinalDraft(content=content_str, outline=outline)
+    return isma.FinalDraft(content=content_str.content, outline=outline)
