@@ -64,5 +64,30 @@ src/agent_project/
 │   ├── utils.py            # Varios utilities
 │   └── reader.py           # Varios file readers for distinct file formats
 └── agent/                  # Agent
-│   └── agent.py            # 
+    ├── supervisor.py       # Supervisor
+    ├── subgraphs/          # 
+    │   ├── investigator.py #
+    │   ├── synthesizer.py  #
+    │   ├── revierer.py     #
+    │   ├── generator.py    #
+    │   └── writer.py       #
+    └── checkpointer.py     # 
 ```
+
+src/agent_project/
+├── schemas.py              # (保留) 数据模型
+├── main.py                 # (修改) 调用 Supervisor
+├── config/
+│   ├── settings.py         # (修改) 增加 MCP、Checkpointer 配置
+│   └── logging_config.py   # (保留)
+├── tools/
+│   ├── agent_tool.py       # (可删除/替换) 由 MCP 工具替代
+│   ├── utils.py            # (部分保留) 辅助函数
+│   └── reader.py           # (可删除) 由 MCP Server 替代
+└── agent/
+    ├── supervisor.py       # (新增) 创建 Supervisor
+    ├── subgraphs/          # (新增) 存放各个子图
+    │   ├── investigator.py 
+    │   ├── synthesizer.py
+    │   └── writer.py
+    └── checkpointer.py     # (新增) 配置 Checkpointer
