@@ -46,6 +46,6 @@ def build_rubric_graph():
     rubric_builder = StateGraph(RubricState)
     rubric_builder.add_node(rubirc_node)
     rubric_builder.add_edge(START, "rubirc_node")
-    rubric_builder.add_edge("rubirc_node", )
+    rubric_builder.add_edge("rubirc_node", END)
 
     return rubric_builder.compile()

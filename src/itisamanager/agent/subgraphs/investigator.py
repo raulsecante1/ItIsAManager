@@ -9,6 +9,8 @@ import itisamanager.config.settings as iset
 
 from langgraph.graph import StateGraph, START, END, add_messages
 from langchain.messages import HumanMessage
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langgraph.prebuilt import ToolNode, tools_condition
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +55,14 @@ def investigator_node(state: InvestigatorState) -> dict:
 
 def build_investigator_graph():
 
+    investigator_client = MultiServerMCPClient({
+        "filesystem": {
+            "transport": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", iset.PROJECT_ROOT / "documents"]
+        }
+    })
+
     investigator_buildr = StateGraph(InvestigatorState)
     investigator_buildr.add_node(investigator_node)
 
@@ -60,3 +70,29 @@ def build_investigator_graph():
     investigator_buildr.add_edge("investigator_node", END)
 
     return investigator_buildr.compile()
+
+async def create_investigator_subgraph():
+
+    client = MultiServerMCPClient({
+        "filesystem": {
+            "transport": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", iset.PROJECT_ROOT / "documents"]
+        }
+    })
+    mcp_tools = await client.get_tools()
+
+    def llm_decide(state: InvestigatorState):
+        llm_with_tools = iset.MAIN_AGENT_LLM.bind_tools(mcp_tools)
+        response = llm_with_tools.invoke(state["messages"])
+        return {"messages": [response]}
+
+    builder = StateGraph(InvestigatorState)
+    builder.add_node("decide", llm_decide)
+    builder.add_node("tools", ToolNode(mcp_tools))
+    
+    builder.add_edge(START, "decide")
+    builder.add_conditional_edges("decide", tools_condition, {"tools": "tools", END: END})
+    builder.add_edge("tools", "decide")
+    
+    return builder.compile()
