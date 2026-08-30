@@ -61,7 +61,7 @@ graph TD
 ## Project structure
 
 ```
-src/agent_project/
+src/itisamanager/
 ├── schemas.py              # Pydantic dataformat
 ├── main.py                 # 
 ├── config/                 #
