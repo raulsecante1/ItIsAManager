@@ -81,3 +81,7 @@ def get_EMBEDDING_MODEL():
         from sentence_transformers import SentenceTransformer
         EMBEDDING_MODEL = SentenceTransformer("all-MiniLM-L6-v2") # "all-MiniLM-L6-v2" converts text into 384-dimensional vectors.
     return EMBEDDING_MODEL
+
+######################  MCP url ##################################
+
+MCP_URL = "http://localhost:8000/mcp"

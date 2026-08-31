@@ -1,27 +1,9 @@
-import pathlib
 from typing import List
-from pathlib import Path
 
 import langchain_text_splitters
 
-import itisamanager.tools.reader as irdr
 import itisamanager.schema as isma
 import itisamanager.config.settings as iset
-
-
-def read_file(path: str) -> isma.Document:
-    """
-    read the note and extract its content into a Document
-    """
-
-    file_path = pathlib.Path(path)
-
-    if not file_path.exists():
-        raise FileNotFoundError(path)
-
-    reader = irdr.get_reader(file_path)
-
-    return reader.read(file_path)
 
 
 def chunking(sourcefile: isma.Document) -> list[isma.ChunkText]:
@@ -47,21 +29,6 @@ def chunking(sourcefile: isma.Document) -> list[isma.ChunkText]:
         )
 
     return output_chunk
-
-
-def get_unique_path(path: Path) -> Path:
-    """
-    create a serializaed copy in stead of overwriting the existing file
-    """
-    if not path.exists():
-        return path
-
-    i = 1
-    while True:
-        new_path = path.with_stem(f"{path.stem}_{i}")
-        if not new_path.exists():
-            return new_path
-        i += 1
 
 
 def semantic_deduplicate(chunks: List[isma.KnowledgeChunk], threshold: float = 0.85) -> List[isma.KnowledgeChunk]:

@@ -53,41 +53,45 @@ graph TD;
 ## Project structure
 
 ```
-src/agent_project/
-├── schemas.py              # Pydantic dataformat
-├── main.py                 # 
-├── config/                 #
-│   ├── settings.py         # Configuration of the project
-│   └── logging_config.py   # Configuration of the log putput
-├── tools/                  # Tools
-│   ├── agent_tool.py       # Agentes' tool for varios operations
-│   ├── utils.py            # Varios utilities
-│   └── reader.py           # Varios file readers for distinct file formats
-└── agent/                  # Agent
-    ├── supervisor.py       # Supervisor
-    ├── subgraphs/          # 
-    │   ├── investigator.py #
-    │   ├── synthesizer.py  #
-    │   ├── revierer.py     #
-    │   ├── generator.py    #
-    │   └── writer.py       #
-    └── checkpointer.py     # 
+project-root/
+├── pyproject.toml                      #
+├── uv.lock                             # 
+├── docker-compose.yml                  #
+│
+├── src/
+│   └── itisamanager/                   # 
+│       ├── pyproject.toml              # 
+│       ├── Dockerfile                  # 
+│       └── src/itisamanager/           # 
+│           ├── __init__.py             #
+│           ├── main.py                 #
+│           ├── config/                 #
+│           │   ├── settings.py         # settings
+│           │   └── logging_config      # log configuration
+│           ├── agent/
+│           │   ├── supervisor.py       # supervisor graph
+│           │   └── subgraphs/
+│           │       ├── investigator.py # investigator subgraph
+│           │       ├── synthesizer.py  # synthesizer subgraph
+│           │       ├── reviewer.py     # reviewer subgraph
+│           │       ├── generator.py    # generator subgraph
+│           │       └── writer.py       # writer subgraph
+│           └── tools/
+│               ├── agent_tool.py       # tools of llm calling
+│               ├── utils.py            # varios non-llm utilities
+│               └── reader              # file reading utilities
+│    
+├── mcp-server/                         #
+│   ├── pyproject.toml                  #
+│   ├── Dockerfile                      #
+│   └── src/mcp_server/
+│       ├── __init__.py
+│       ├── tools/                      # mcp tools
+│       │   ├── io_tools.py             # I/O tools
+│       │   └── reader.py               # auxiliar functions for io_tools.py
+│       ├── config.py                   # mcp configuration
+│       ├── main.py                     #
+│       └── server.py                   # server
+│
+└── documents/                          #
 ```
-
-src/agent_project/
-├── schemas.py              # (保留) 数据模型
-├── main.py                 # (修改) 调用 Supervisor
-├── config/
-│   ├── settings.py         # (修改) 增加 MCP、Checkpointer 配置
-│   └── logging_config.py   # (保留)
-├── tools/
-│   ├── agent_tool.py       # (可删除/替换) 由 MCP 工具替代
-│   ├── utils.py            # (部分保留) 辅助函数
-│   └── reader.py           # (可删除) 由 MCP Server 替代
-└── agent/
-    ├── supervisor.py       # (新增) 创建 Supervisor
-    ├── subgraphs/          # (新增) 存放各个子图
-    │   ├── investigator.py 
-    │   ├── synthesizer.py
-    │   └── writer.py
-    └── checkpointer.py     # (新增) 配置 Checkpointer

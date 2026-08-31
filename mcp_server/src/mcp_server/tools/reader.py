@@ -1,32 +1,24 @@
 import pathlib
 import typing
 
-import itisamanager.schema as isma
-
 
 class FileReader(typing.Protocol):
-    def read(self, path: pathlib.Path) -> isma.Document:
+    def read(self, path: pathlib.Path) -> str:
         ...
 
 
 class TextReader:
-    def read(self, path: pathlib.Path) -> isma.Document:
+    def read(self, path: pathlib.Path) -> str:
         content = path.read_text(encoding="utf-8")
 
-        return isma.Document(
-            content=content,
-            source=str(path),
-        )
+        return content
 
 
 class MarkdownReader:
-    def read(self, path: pathlib.Path) -> isma.Document:
+    def read(self, path: pathlib.Path) -> str:
         content = path.read_text(encoding="utf-8")
 
-        return isma.Document(
-            content=content,
-            source=str(path),
-        )
+        return content
 
 
 READERS: dict[str, type[FileReader]] = {

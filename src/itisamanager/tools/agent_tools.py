@@ -1,4 +1,3 @@
-import pathlib
 import tiktoken
 import logging
 
@@ -113,41 +112,6 @@ def read_note(path: str) -> isma.KnowledgeChunks:
                 chunk.title = "Untitled"
 
     return result
-
-
-def list_readable_files(directory_path: str) -> dict[str, list[str]]:
-    """
-    use this function to list all the readable files in the given directory path
-    """
-
-    files = {}
-
-    path = pathlib.Path(directory_path)
-    if not path.exists():
-        raise FileNotFoundError(f"directory dose not exist: {directory_path}")
-    if not path.is_dir():
-        raise ValueError(f"path is not a directory use read_note() instead: {directory_path}")
-    
-    files["markdown_files"] = [str(p) for p in list(path.rglob("*.md"))]
-    files["text_files"] = [str(p) for p in list(path.rglob("*.txt"))]
-
-    return files    
-
-
-def write_article(finalDraft: isma.FinalDraft):
-    """
-    use this function to write back the generated FinalDraft into disk
-    """
-    path = iutl.get_unique_path(pathlib.Path(iset.ARTICLE_PATH))
-
-    path.write_text(
-        finalDraft.content,
-        encoding="utf-8",
-    )
-
-    logger.info(f"[write_article] File written")
-
-    return "file written"
 
 
 def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOutline:

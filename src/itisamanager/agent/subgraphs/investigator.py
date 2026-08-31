@@ -53,31 +53,12 @@ def investigator_node(state: InvestigatorState) -> dict:
     return {"knowledge_chunks": combined_knowledge_chunk}
 
 
-def build_investigator_graph():
-
-    investigator_client = MultiServerMCPClient({
-        "filesystem": {
-            "transport": "stdio",
-            "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-filesystem", iset.PROJECT_ROOT / "documents"]
-        }
-    })
-
-    investigator_buildr = StateGraph(InvestigatorState)
-    investigator_buildr.add_node(investigator_node)
-
-    investigator_buildr.add_edge(START, "investigator_node")
-    investigator_buildr.add_edge("investigator_node", END)
-
-    return investigator_buildr.compile()
-
 async def create_investigator_subgraph():
 
     client = MultiServerMCPClient({
         "filesystem": {
-            "transport": "stdio",
-            "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-filesystem", iset.PROJECT_ROOT / "documents"]
+            "transport": "http", # according to the type
+            "url": iset.MCP_URL,
         }
     })
     mcp_tools = await client.get_tools()
