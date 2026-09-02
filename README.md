@@ -19,18 +19,22 @@ MPKN is a Multi-agent project based on  *LangChain*, that able to read the docum
 
 ## Workflow
 
-The `main_agent` receives the reuqest from the user like:
+The `supervisor` graph receives the reuqest from the user like:
 
 ```
 You are an expert article generation agent.
 Now i need you to read the files at "documents/" then generate an article based on it
 ```
 
-Then create a `sub_agent` as an investigator, which has the tool to `list` and `read` the files from the path give by the user, between them the `read` tool will start some `llm_models` to read the `exact_content` of the file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
+Along with a path `{working_directory}/documents`
 
-After that some other `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`.
+Then calls the `investigator` sub graph, which has access to a mcp server where holds `read_file` and `list_readable_file` tools, and a local tool `read_note`, then the invesigator will start the loop of read files, think if need to read more, read file,... until it decides that there are enough files readed, it will call the `read_note` tool, where some `llm_models` will be started  to read the `file_content` of the readed file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
 
-When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft`, then the `main_agent` will use its tool `write` to wirte down the article
+After that is the `synthesizer` sub graph, where some other `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`.
+
+When `outline` is synthesized, it comes to `generator` graph, where serval other `llm_models` will be started to generate `final_draft`, then the `reviewer` sub graph will start to judge whether the generated articl is good enough (score>8) to write into a file (if not the flow will back to the former sub graph).
+
+So when all there are finished, the `writer` subgraph will be initiated to write the file.
 
 ```mermaid
 flowchart TB
