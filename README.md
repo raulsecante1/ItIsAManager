@@ -30,16 +30,22 @@ After that some other `llm_models` will be started to generate `outline`, `chapt
 When `outline` is synthesized, serval other `llm_models` will be started to generate `final_draft`, then the `main_agent` will use its tool `write` to wirte down the article
 
 ```mermaid
-graph TD;
-  __start__([__start__]) --> investigator_node;
-  investigator_node --> outline_node;
-  outline_node --> article_node;
-  article_node --> rubirc_node;
-  rubirc_node -->|write| write_file_node;
-  rubirc_node -->|revise| revise_draft_node;
-  rubirc_node -->|outline| outline_node;
-  revise_draft_node --> rubirc_node;
-  write_file_node --> __end__([__end__]);
+flowchart TD
+  __start__([__start__]) --> investigator_node
+
+  investigator_node --> check_investigation{carry on reading}
+  check_investigation -->|yes| investigator_node
+  check_investigation -->|no| outline_node
+
+  outline_node --> article_node
+  article_node --> rubirc_node
+
+  rubirc_node -->|write| write_file_node
+  rubirc_node -->|revise| revise_draft_node
+  rubirc_node -->|outline| outline_node
+
+  revise_draft_node --> rubirc_node
+  write_file_node --> __end__([__end__])
 ```
 
 ## Tech stack and Environment
