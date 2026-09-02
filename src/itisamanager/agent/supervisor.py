@@ -21,7 +21,6 @@ class SupervisorState(TypedDict):
     finalDraft: isma.FinalDraft | None
     score: float
     feedback: str
-    iteration: int = 3
 
 
 def rubric_conditional_branch(state: SupervisorState) -> str:
@@ -42,7 +41,7 @@ def rubric_conditional_branch(state: SupervisorState) -> str:
 async def build_supervisor_graph():
 
     supervisor_builder = StateGraph(SupervisorState)
-    supervisor_builder.add_node("investigator", await iasb.investigator.build_investigator_graph())
+    supervisor_builder.add_node("investigator", await iasb.investigator.build_investigator_subgraph())
     supervisor_builder.add_node("synthesizer", iasb.synthesizer.build_synthesizer_graph())
     supervisor_builder.add_node("generator", iasb.generator.build_article_graph())
     supervisor_builder.add_node("reviewer", iasb.reviewer.build_rubric_graph())

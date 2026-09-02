@@ -1,19 +1,10 @@
 import pydantic
 
-class Document(pydantic.BaseModel):
-    """
-    Contents read from files by itisamanager.tools.read_files
-    """
-    content: str
-    source: str
-
-
 class ChunkText(pydantic.BaseModel):
     """
     chunks of the extracted Document
     """
     content: str
-    source: str
     index: int
 
 

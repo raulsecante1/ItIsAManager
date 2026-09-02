@@ -3,14 +3,14 @@ from typing import TypedDict, Annotated, List
 import operator
 
 import itisamanager.schema as isma
-import itisamanager.tools.agent_tools as iagt
-import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
+import itisamanager.tools.agent_tools as iagt
 
+from langchain.tools import tool
 from langgraph.graph import StateGraph, START, END, add_messages
-from langchain.messages import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain.messages import ToolMessage
 
 
 logger = logging.getLogger(__name__)
@@ -23,57 +23,61 @@ class InvestigatorState(TypedDict):
     knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
 
 
+def extract_knowledge_chunk_node(state: InvestigatorState) -> dict:
 
-def investigator_node(state: InvestigatorState) -> dict: 
+    all_chunks = []
+    for msg in state["messages"]:
 
-    file_dict = iagt.list_readable_files(state["directory_path"])
-    file_paths = [file for files in file_dict.values() for file in files]
-    new_knowledge_chunk = []
+        # every tool message with its name in read_file and has file content
+        if isinstance(msg, ToolMessage) and msg.name == "read_file":
 
-    user_query = ""
-    for msg in reversed(state.get("messages", [])):
-        if isinstance(msg, HumanMessage):
-            user_query = msg.content
-            break
-     
-    if len(file_paths) > iset.SELECT_THRESHOLD:
-        file_paths = iutl.select_relevant_files(file_paths, user_query, top_k=iset.TOP_K,threshold=iset.FILE_RELEVANCE_THRESHOLD) # select the top K most related files
-
-    for file_path in file_paths:
-        chunks_obj = iagt.read_note(file_path)
-        new_knowledge_chunk.extend(chunks_obj.knowledge_chunk)
-
-    old_knowledge_chunk = state["knowledge_chunks"]
-    combined_knowledge_chunk = old_knowledge_chunk + new_knowledge_chunk
-
-    # intellgently discard similar chunks
-    if len(combined_knowledge_chunk) > iset.MAXIMUM_CHUNK:
-        combined_knowledge_chunk = iutl.semantic_deduplicate(combined_knowledge_chunk, threshold=iset.CHUNK_SEMANTIC_THRESHOLD)
-
-    return {"knowledge_chunks": combined_knowledge_chunk}
+            file_content = msg.content
+            if isinstance(file_content, list):
+                # tool message has format [{"type": "text", "text": "..."}]
+                texts = [block.get("text", "") for block in file_content if block.get("type") == "text"]
+                file_content = "\n".join(texts)
+            
+            if msg.status == "error":
+                logger.error(f"reading failed: {file_content}")
+                continue
+            
+            chunks_obj = iagt.read_note(file_content)
+            all_chunks.extend(chunks_obj.knowledge_chunk)
+            
+    return {"knowledge_chunks": all_chunks}
 
 
-async def create_investigator_subgraph():
+async def build_investigator_subgraph():
 
     client = MultiServerMCPClient({
         "filesystem": {
             "transport": "http", # according to the type
-            "url": iset.MCP_URL,
+            "url": iset.MCP_URL, # http://localhost:8000/mcp
         }
     })
     mcp_tools = await client.get_tools()
 
     def llm_decide(state: InvestigatorState):
         llm_with_tools = iset.MAIN_AGENT_LLM.bind_tools(mcp_tools)
-        response = llm_with_tools.invoke(state["messages"])
+        system_msg = {
+            "role": "system",
+            "content": (
+                "You are a file reader agent. Use list_readable_files and read_file to read files. "
+                "After reading all files, say 'I have finished reading all files.' and stop calling tools."
+            )
+        }
+        messages = [system_msg] + state["messages"]
+        response = llm_with_tools.invoke(messages)
         return {"messages": [response]}
 
     builder = StateGraph(InvestigatorState)
     builder.add_node("decide", llm_decide)
     builder.add_node("tools", ToolNode(mcp_tools))
+    builder.add_node(extract_knowledge_chunk_node)
     
     builder.add_edge(START, "decide")
-    builder.add_conditional_edges("decide", tools_condition, {"tools": "tools", END: END})
+    builder.add_conditional_edges("decide", tools_condition, {"tools": "tools", END: "extract_knowledge_chunk_node"})
     builder.add_edge("tools", "decide")
+    builder.add_edge("extract_knowledge_chunk_node", END)
     
     return builder.compile()

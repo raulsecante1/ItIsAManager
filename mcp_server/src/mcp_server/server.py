@@ -12,16 +12,13 @@ import mcp_server.config as mcfg
 def init_mcp():
 
     mcp = FastMCP("itIsAMcpServer")
-    mcp.add_tool(mtit.write_article)
+    #mcp.add_tool(mtit.write_article)  # since this dose not make any sense
     mcp.add_tool(mtit.list_readable_files)
     mcp.add_tool(mtit.read_file)
 
-    @mcp.app.get("/health")
-    async def health():
-        return {"status": "healthy", "docs_dir": str(mcfg.DOCS_DIR), "output_dir": str(mcfg.OUTPUT_DIR)}
-
+    ''' since we canceled the write file tool
     # the download link
-    @mcp.app.get("/files/{filename}")
+    @mcp.custom_route("/files/{filename}", methods=["GET"])
     async def download_file(filename: str):
         """
         define the download link
@@ -41,6 +38,7 @@ def init_mcp():
             filename=file_path.name,
             media_type="text/markdown" if file_path.suffix == ".md" else "text/plain"
         )
+    '''
 
-
+    print("Registered routes:", mcp._routes if hasattr(mcp, '_routes') else "No _routes")
     return mcp

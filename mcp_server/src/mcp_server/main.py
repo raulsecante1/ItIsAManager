@@ -3,5 +3,5 @@ import mcp_server.server as msvr
 if __name__ == "__main__":
 
     mcp = msvr.init_mcp()
-    mcp.run(transport="http")
+    mcp.run(transport="http", host="0.0.0.0", port=8000)
     

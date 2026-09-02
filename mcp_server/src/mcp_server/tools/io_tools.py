@@ -7,7 +7,7 @@ import mcp_server.config as mcfg
 
 logger = logging.getLogger(__name__)
 
-
+'''
 def write_article(finalDraft: str, filename: str = "article.md") -> dict:
     """
     use this function to write back the generated FinalDraft into disk
@@ -42,7 +42,7 @@ def write_article(finalDraft: str, filename: str = "article.md") -> dict:
         "file_path": str(unique_path),
         "download_url": download_url
     }
-
+'''
 
 def list_readable_files(subdir: str = ".") -> dict[str, list[str]]:
     """
@@ -83,7 +83,7 @@ def get_unique_path(path: pathlib.Path) -> pathlib.Path:
 
 def read_file(path: str) -> str:
     """
-    read the note and extract its content into a Document
+    read the note and extract its content into a string
     """
 
     safe_path = pathlib.Path(path)

@@ -1,5 +1,6 @@
 import tiktoken
 import logging
+import pathlib
 
 import itisamanager.schema as isma
 import itisamanager.tools.utils as iutl
@@ -9,22 +10,20 @@ import itisamanager.config.settings as iset
 logger = logging.getLogger(__name__)
 
 
-def read_note(path: str) -> isma.KnowledgeChunks:
+def read_note(file_content: str) -> isma.KnowledgeChunks:
     """
     use this function to read a file with the give path and then generate varios KnowledgeChunk based on the file's content
     """
 
-    logger.info(f"[read_note] Called with path: {path}")
+    logger.info(f"[read_note] Called with content: \n{file_content[:50]}")
 
     extractor = iset.EXTRACTION_LLM.with_structured_output(
         isma.KnowledgeChunks
     )
 
-    file_content = iutl.read_file(path)
-
     encoder = tiktoken.get_encoding("cl100k_base") #calculate the token usage to decide if to batch or not
 
-    estimate_tokens = len(encoder.encode(file_content.content))
+    estimate_tokens = len(encoder.encode(file_content))
     if estimate_tokens > iset.EXTRACTION_MODEL_TOKEN_LIMIT:
         chunks = iutl.chunking(file_content)
 
@@ -81,7 +80,7 @@ def read_note(path: str) -> isma.KnowledgeChunks:
                 - 'summary': A brief 1-2 sentence summary (max 100 words).
                 
                 Content:
-                {file_content.content}
+                {file_content}
                 """
             )
         except Exception as e:
@@ -173,3 +172,21 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) 
     logger.info(f"[generate_article] Generated the article")
     
     return isma.FinalDraft(content=content_str.content, outline=outline)
+
+
+def write_article(finalDraft: isma.FinalDraft):
+    """
+    use this function to write back the generated FinalDraft into disk
+    """
+    path = iutl.get_unique_path(pathlib.Path(iset.ARTICLE_PATH))
+
+    path.write_text(
+        finalDraft.content,
+        encoding="utf-8",
+    )
+
+    logger.info(f"[write_article] File written")
+
+    return "file written"
+
+
