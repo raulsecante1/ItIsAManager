@@ -3,7 +3,7 @@
 Multi-Agent Personal Knowledge Manager (MPKM)
 
 - custom state graph, deterministic workflow version at manual_state_graph branch
-- ReAct and MCP version at react_mcp branch
+- multi-agent version at multi_agent branch
 
 ## What it is?
 
