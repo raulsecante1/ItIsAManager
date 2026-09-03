@@ -1,6 +1,6 @@
 # ItIsAManager
 
-Multi-Agent Personal Knowledge Manager (MPKN)
+Multi-Agent Personal Knowledge Manager (MPKM)
 
 - multi-agent version at main branch
 - ReAct and MCP version at react_mcp branch
