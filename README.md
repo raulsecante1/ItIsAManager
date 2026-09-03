@@ -15,7 +15,7 @@ MPKN is a Multi-agent project based on  *LangChain*, that able to read the docum
 
 1. Install `uv` or create a virtual environment via`-venv`
 
-1. run the project via `uv run itisamaster` or `python main.py` the other case
+1. run the project via `uv run itisamanager` or `python main.py` the other case
 
 ## Workflow
 
