@@ -1,6 +1,6 @@
 # ItIsAManager
 
-Multi-Agent Personal Knowledge Manager (MPKN)
+Multi-Agent Personal Knowledge Manager (MPKM)
 
 - custom state graph, deterministic workflow version at manual_state_graph branch
 - ReAct and MCP version at react_mcp branch
