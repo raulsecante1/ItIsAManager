@@ -2,7 +2,7 @@
 
 Multi-Agent Personal Knowledge Manager (MPKM)
 
-- multi-agent version at main branch
+- multi-agent version at multi_agent branch
 - ReAct and MCP version at react_mcp branch
 
 ## What it is?
