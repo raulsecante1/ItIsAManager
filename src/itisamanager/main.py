@@ -1,11 +1,8 @@
 import logging
+import asyncio
 
-import itisamanager.agent.agent as iage
-
-import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
-import pathlib
-
+import itisamanager.agent.supervisor as iasp
 from itisamanager.config.logging_config import setup_logging
 
 setup_logging(logging.INFO)
@@ -20,19 +17,47 @@ You are an expert article generation agent.
 Now i need you to read the files at "documents/" then generate an article based on it
 """
 
-def main():
-    iage.main_agent_flow(prompt)
 
-    '''
-    print (f"\n CWD is {iset.PROJECT_ROOT}")
-    print(f"\n documents/LangChain_core_components_model.md exists? {pathlib.Path("documents/LangChain_core_components_model.md").exists()}")
-    a = iutl.read_file("documents/LangChain_core_components_model.md")
-    print(a.source)
-    print("---------------------")
-    print(a.content[:50])
-    '''
+async def main():
+    try:
+        initial_state = {
+            "messages": [("user", "read the files at documents/ and generate an article based on that")],
+            "directory_path": str(iset.PROJECT_ROOT / "documents"),
+            "knowledge_chunks": [],
+            "articleOutline": None,
+            "finalDraft": None,
+            "score": 0.0,
+            "feedback": "",
+        }
+        config = {
+            "recursion_limit": 13,  # 3 circles at maximum
+            "configurable": {
+                "thread_id": "1"
+            }
+        }
+
+        agent_graph = await iasp.build_supervisor_graph()
+        final_state = await agent_graph.ainvoke(initial_state, config=config)
+
+        logger.info("Finished: ")
+        logger.info(f"outline: {final_state.get('articleOutline')}")
+        logger.info(f"final draft (first 100 characters): {final_state.get('finalDraft', {}).content[:100] if final_state.get('finalDraft') else '无'}")
+        logger.info(f"score: {final_state.get('score')}")
+
+        print(f"mermaid chart: \n{agent_graph.get_graph().draw_mermaid()}")
+    except:
+        logger.exception("exception")
+        raise
+
+
+def aux_main():
+    """
+    Since the uv run command will just import the main then Synchronously calling it, so we need to specify this
+    """
+    asyncio.run(main())
 
 
 if __name__ == "__main__":
-    main()
+    print("main.py 被导入或执行")
+    asyncio.run(main())
     

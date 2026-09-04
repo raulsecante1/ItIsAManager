@@ -1,31 +1,13 @@
+import langchain_text_splitters
+
+import itisamanager.schema as isma
+
 import pathlib
 
 
-import langchain_text_splitters
-
-import itisamanager.tools.reader as irdr
-import itisamanager.schema as isma
-import itisamanager.config.settings as iset
-
-
-def read_file(path: str) -> isma.Document:
+def chunking(sourcefile: str) -> list[isma.ChunkText]:
     """
-    read the note and extract its content into a Document
-    """
-
-    file_path = pathlib.Path(path)
-
-    if not file_path.exists():
-        raise FileNotFoundError(path)
-
-    reader = irdr.get_reader(file_path)
-
-    return reader.read(file_path)
-
-
-def chunking(sourcefile: isma.Document) -> list[isma.ChunkText]:
-    """
-    chop the document into chunks
+    chop the content into chunks
     """
     splitter = langchain_text_splitters.RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -40,9 +22,23 @@ def chunking(sourcefile: isma.Document) -> list[isma.ChunkText]:
         output_chunk.append(
             isma.ChunkText(
                 content=chunk,
-                source=sourcefile.source,
                 index=index,
             )
         )
 
     return output_chunk
+
+
+def get_unique_path(path: pathlib.Path) -> pathlib.Path:
+    """
+    create a serializaed copy instead of overwriting the existing file 
+    """
+    if not path.exists():
+        return path
+
+    i = 1
+    while True:
+        new_path = path.with_stem(f"{path.stem}_{i}")
+        if not new_path.exists():
+            return new_path
+        i += 1

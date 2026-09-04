@@ -1,36 +1,29 @@
-import pathlib
 import tiktoken
 import logging
-
-from langgraph.types import Command
-from langchain.tools import tool, ToolRuntime
-from langchain.messages import ToolMessage
+import pathlib
 
 import itisamanager.schema as isma
 import itisamanager.tools.utils as iutl
 import itisamanager.config.settings as iset
-import itisamanager.agent.agent as iagt
+
 
 logger = logging.getLogger(__name__)
 
 
-@tool
-def read_note(path: str) -> isma.KnowledgeChunks:
+def read_note(file_content: str) -> isma.KnowledgeChunks:
     """
     use this function to read a file with the give path and then generate varios KnowledgeChunk based on the file's content
     """
 
-    logger.info(f"[read_note] Called with path: {path}")
+    logger.info(f"[read_note] Called with content: \n{file_content[:50]}")
 
     extractor = iset.EXTRACTION_LLM.with_structured_output(
         isma.KnowledgeChunks
     )
 
-    file_content = iutl.read_file(path)
+    encoder = tiktoken.get_encoding("cl100k_base") #calculate the token usage to decide if to batch or not
 
-    encoder = tiktoken.get_encoding("cl100k_base")
-
-    estimate_tokens = len(encoder.encode(file_content.content))
+    estimate_tokens = len(encoder.encode(file_content))
     if estimate_tokens > iset.EXTRACTION_MODEL_TOKEN_LIMIT:
         chunks = iutl.chunking(file_content)
 
@@ -58,7 +51,8 @@ def read_note(path: str) -> isma.KnowledgeChunks:
                 }
             )
 
-            result = [b for a in preflatten_result for b in a]
+            flattened = [item for sublist in preflatten_result for item in sublist]
+            result = isma.KnowledgeChunks(knowledge_chunk=flattened)
 
         except Exception as e:
             error_msg = str(e)
@@ -86,7 +80,7 @@ def read_note(path: str) -> isma.KnowledgeChunks:
                 - 'summary': A brief 1-2 sentence summary (max 100 words).
                 
                 Content:
-                {file_content.content}
+                {file_content}
                 """
             )
         except Exception as e:
@@ -106,47 +100,19 @@ def read_note(path: str) -> isma.KnowledgeChunks:
 
     logger.info(f"[read_note] Extracted {len(result.knowledge_chunk)} chunks")
 
+    for chunk in result.knowledge_chunk:
+        if not chunk.title or chunk.title.strip() == "":
+
+            # take the first 3 words from summary if summary presents
+            if chunk.summary:
+                words = chunk.summary.split()[:3]
+                chunk.title = " ".join(words) + "..."
+            else:
+                chunk.title = "Untitled"
+
     return result
 
 
-@tool
-def list_readable_files(directory_path: str) -> dict[str, list[str]]:
-    """
-    use this function to list all the readable files in the given directory path
-    """
-
-    files = {}
-
-    path = pathlib.Path(directory_path)
-    if not path.exists():
-        raise FileNotFoundError(f"directory dose not exist: {directory_path}")
-    if not path.is_dir():
-        raise ValueError(f"path is not a directory use read_note() instead: {directory_path}")
-    
-    files["markdown_files"] = [str(p) for p in list(path.rglob("*.md"))]
-    files["text_files"] = [str(p) for p in list(path.rglob("*.txt"))]
-
-    return files    
-
-
-@tool
-def write_article(finalDraft: isma.FinalDraft):
-    """
-    use this function to write back the generated FinalDraft into disk
-    """
-    path = pathlib.Path(iset.ARTICLE_PATH)
-
-    path.write_text(
-        finalDraft.content,
-        encoding="utf-8",
-    )
-
-    logger.info(f"[write_article] File written")
-
-    return "file written"
-
-
-@tool
 def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOutline:
     """
     generate a article outline and chapters from the knowledge chunks using LLM model not agent
@@ -178,8 +144,7 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
     return structured_llm.invoke(outline_prompt)
 
 
-@tool
-def generate_article(outline: isma.ArticleOutline) -> isma.FinalDraft:
+def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) -> isma.FinalDraft:
     """
     generate final draft of the article from the outline and the chapters using LLM model not agent
     """
@@ -199,8 +164,29 @@ def generate_article(outline: isma.ArticleOutline) -> isma.FinalDraft:
     {all_chapters}
     """
 
+    if feedback:
+        article_prompt + f"\n\nThe feedback:\n{feedback}"
+
     content_str = iset.MAIN_AGENT_LLM.invoke(article_prompt)
 
     logger.info(f"[generate_article] Generated the article")
     
-    return isma.FinalDraft(content=content_str, outline=outline)
+    return isma.FinalDraft(content=content_str.content, outline=outline)
+
+
+def write_article(finalDraft: isma.FinalDraft):
+    """
+    use this function to write back the generated FinalDraft into disk
+    """
+    path = iutl.get_unique_path(pathlib.Path(iset.ARTICLE_PATH))
+
+    path.write_text(
+        finalDraft.content,
+        encoding="utf-8",
+    )
+
+    logger.info(f"[write_article] File written")
+
+    return "file written"
+
+

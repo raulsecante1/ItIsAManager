@@ -1,0 +1,11 @@
+services:
+  mcp-server:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MCP_DOCS_DIR=/app/documents
+      - MCP_OUTPUT_DIR=/app/output
+    volumes:
+      - ../documents:/app/documents
+      - ../output:/app/output

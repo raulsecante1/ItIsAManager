@@ -1,77 +1,93 @@
 import logging
+from typing import TypedDict, List, Annotated
+import operator
 
-from langchain.agents import create_agent, AgentState
-from langchain.agents.middleware import TodoListMiddleware
-from deepagents.middleware import SubAgentMiddleware
-from deepagents.backends import StateBackend
+from langchain.agents import AgentState
+from langgraph.graph import StateGraph, START, END, add_messages
+from langchain.messages import HumanMessage
 
 import itisamanager.config.settings as iset
 import itisamanager.tools.agent_tools as iagt
 import itisamanager.schema as isma
+import itisamanager.tools.utils as iutl
 
 logger = logging.getLogger(__name__)
 
-class itIsAgentState(AgentState):
-    knowledge_chunks: isma.KnowledgeChunks
 
-SUBAGENT_MIDDLEWARE = SubAgentMiddleware(
-    backend=StateBackend(),
-    subagents=[
+class AgentState(TypedDict):
+
+    messages: Annotated[list, add_messages]
+    directory_path: str
+    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    articleOutline: isma.ArticleOutline | None
+    finalDraft: isma.FinalDraft | None
+    score: float
+    feedback: str
+
+
+def revise_draft_node(state: AgentState) -> dict:
+
+    outline = state["articleOutline"]
+    feedback = state["feedback"]
+    newdraft = iagt.generate_article(outline, feedback)
+    return {"finalDraft": newdraft}
+
+
+def write_file_node(state: AgentState):
+
+    article = state["finalDraft"]
+    iagt.write_article(article)
+    return {} # terminated
+
+
+def main_agent_flow(user_query: str, dir_path: str):
+
+    main_builder = StateGraph(AgentState)
+    main_builder.add_node(investigator_node)
+    main_builder.add_node(outline_node)
+    main_builder.add_node(article_node)
+    main_builder.add_node(rubirc_node)
+    main_builder.add_node(revise_draft_node)
+    main_builder.add_node(write_file_node)
+
+    '''
+    main_builder.add_sequence(
+        [START, 
+         "investigator_node", 
+         "outline_node",
+         "article_node",
+         "rubirc_node"])
+    '''
+    main_builder.add_edge(START, "investigator_node")
+    main_builder.add_edge("investigator_node", "outline_node")
+    main_builder.add_edge("outline_node", "article_node")
+    main_builder.add_edge("article_node", "rubirc_node")
+    main_builder.add_conditional_edges(
+        "rubirc_node", 
+        rubric_conditional_branch, 
         {
-            "name": "Investigator sub agent",
-            "description": "Investigate agent",
-            "system_prompt": iset.SUB_AGENT_SYSTEM_PROMPT,
-            "model": iset.SUBAGENT_LLM,
-            "tools": [iagt.read_note,
-                      iagt.list_readable_files,
-                      iagt.generate_article,
-            ],
-            "api_key": iset.PROVIDER_API_KEY,
-            "base_url": iset.PROVIDER_BASE_URL,
-        }
-    ],
-    state_schema=itIsAgentState,
-)
-
-
-def create_main_agent():
-    """
-    create the main agent
-    """
-    return create_agent(
-        name="Main agnet",
-        model=iset.MAIN_AGENT_LLM, 
-        tools=[iagt.write_article, iagt.synthesize_outline], 
-        middleware=[
-            SUBAGENT_MIDDLEWARE, 
-            iset.RUBRIC_MIDDLEWARE, 
-            TodoListMiddleware(),
-        ],
-        state_schema=itIsAgentState,
+            "write": "write_file_node",
+            "revise": "revise_draft_node",
+            "outline": "outline_node"
+            }
     )
+    main_builder.add_edge("revise_draft_node", "rubirc_node")
+    main_builder.add_edge("write_file_node", END)
 
+    initial_state = {
+        "messages": [HumanMessage(content=user_query)],
+        "directory_path": dir_path,
+        "knowledge_chunks": [],
+        "articleOutline": None,
+        "finalDraft": None,
+        "score": 0.0,
+        "feedback": "",
+    }
 
+    agent_graph = main_builder.compile()
+    agent_graph.invoke(initial_state, config={"recursion_limit": 13})  # 3 circles at maximum
 
+    print(agent_graph.get_graph().draw_mermaid()) # get the mermaid chart of the graph
 
-def main_agent_flow(user_query: str):
-    """
-    the main agent workflow
-    """
-    main_agent = create_main_agent()
-    state = main_agent.invoke({"messages": [{"role": "user", "content": user_query}]})
+    return f"Article written at {iset.ARTICLE_PATH.parent}"
 
-    '''
-    knowledge_chunks = state.get("knowledge_chunks", [])
-    
-    if not knowledge_chunks:
-        raise ValueError("No knowledge chunks extracted. Check file paths.")
-
-    outline = synthesize_outline(knowledge_chunks)
-    final_article = generate_article(outline)
-
-    main_agent.invoke({
-        "messages": [{"role": "user", "content": f"Write down the following article to disk{final_article.content}"}],
-    })
-    '''
-
-    return f"Article written on {iset.ARTICLE_PATH}"
