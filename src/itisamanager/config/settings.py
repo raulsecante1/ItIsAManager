@@ -63,12 +63,13 @@ MAXIMUM_CHUNK = 20 # maximum chunk to have for outline generation
 ######################  rubric ###################################
 
 RUBRIC_PROMPT = """
-You are an expert editor evaluating a technical article draft.
+You are an expert editor evaluating an article draft.
 
 Evaluate the draft against the following criteria (score each from 1 to 10 then yeild a weighed score):
 1. Clarity: Is the structure logical? Are paragraphs coherent?
 2. Coverage: Does the draft fully cover all the chapters and key_points outlined in the provided ArticleOutline?
 3. max 300 words
+4. If user query presents, have it under consideration
 """
 
 ######################  embedding model ##########################

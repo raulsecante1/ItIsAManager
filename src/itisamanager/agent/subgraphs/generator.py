@@ -1,6 +1,6 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph, START, END, add_messages
 
-from typing import TypedDict
+from typing import TypedDict, Annotated
 import logging
 
 import itisamanager.schema as isma
@@ -13,12 +13,21 @@ class ArticleState(TypedDict):
 
     articleOutline: isma.ArticleOutline | None
     finalDraft: isma.FinalDraft | None
+    messages: Annotated[list, add_messages]
 
 
 def article_node(state: ArticleState, feedback: str | None = None) -> dict:
 
     outline = state["articleOutline"]
-    article = iagt.generate_article(outline, feedback=feedback)
+    user_messages = [
+        message
+        for message in state["messages"]
+        if message.type == "human"
+    ]
+
+    query = user_messages[-1].content if user_messages else None
+
+    article = iagt.generate_article(outline, feedback=feedback, user_query=query)
 
     return {"finalDraft": article}
 

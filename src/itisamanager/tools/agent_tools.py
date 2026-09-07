@@ -113,7 +113,7 @@ def read_note(file_content: str) -> isma.KnowledgeChunks:
     return result
 
 
-def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOutline:
+def synthesize_outline(all_chunks: list[isma.KnowledgeChunk], user_query: str | None = None) -> isma.ArticleOutline:
     """
     generate a article outline and chapters from the knowledge chunks using LLM model not agent
     """
@@ -124,7 +124,7 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
 
     outline_prompt = f"""
     You are a knowledge synthesis expert.
-    Read the following text chunks and synthesize the outline and chapter of all the chunks, where the outline object is:
+    Read the following text chunks and the user query, then synthesize the outline and chapter of all the chunks, where the outline object is:
     - 'title': A concise title for the outline.
     - 'chapters': A list of chapter objects.
     - 'overall_strategy': A single phrase that describe the overall logic (max 150 words).
@@ -137,6 +137,9 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
     {all_content}
     """
 
+    if user_query:
+        outline_prompt = outline_prompt + f"User query:\n{user_query}"
+
     structured_llm = iset.MAIN_AGENT_LLM.with_structured_output(isma.ArticleOutline)
 
     logger.info(f"[synthesize_outline] Synthesizing the outline")
@@ -144,7 +147,7 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk]) -> isma.ArticleOut
     return structured_llm.invoke(outline_prompt)
 
 
-def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) -> isma.FinalDraft:
+def generate_article(outline: isma.ArticleOutline, feedback: str | None = None, user_query: str | None = None) -> isma.FinalDraft:
     """
     generate final draft of the article from the outline and the chapters using LLM model not agent
     """
@@ -154,7 +157,8 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) 
         all_chapters += f"{chapter.title}: {chapter.key_points}; "
     article_prompt = f"""
     You are a knowledge article generation expert.
-    Read the following outline and chapters then generate an article about their content, where the article has a format:
+    Read the following outline and chapters then generate an article about their content, and if user query or feedback present, have them under consideration too.
+    The article has a format:
     - 'content': The content of the article
 
     The outline:
@@ -165,7 +169,7 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None) 
     """
 
     if feedback:
-        article_prompt + f"\n\nThe feedback:\n{feedback}"
+        article_prompt = article_prompt + f"\n\nThe feedback:\n{feedback}"
 
     content_str = iset.MAIN_AGENT_LLM.invoke(article_prompt)
 
