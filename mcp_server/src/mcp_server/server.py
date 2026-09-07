@@ -7,6 +7,15 @@ from starlette.responses import FileResponse
 
 import mcp_server.tools.io_tools as mtit
 import mcp_server.config as mcfg
+import mcp_server.tools.reranker as mtrk
+
+
+def rerank_documents(query: str, file_contents: list[str]) -> list[tuple[float, str]]:
+    """
+    Use this function to rerank the documents you just read according to their relevance with the user query
+    """
+    reranker = mtrk.get_reranker()
+    return reranker.rerank(query, file_contents)
 
 
 def init_mcp():
@@ -15,6 +24,9 @@ def init_mcp():
     #mcp.add_tool(mtit.write_article)  # since this dose not make any sense
     mcp.add_tool(mtit.list_readable_files)
     mcp.add_tool(mtit.read_file)
+    mcp.add_tool(rerank_documents)
+
+    
 
     ''' since we canceled the write file tool
     # the download link

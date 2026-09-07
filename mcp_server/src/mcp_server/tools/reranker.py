@@ -1,6 +1,8 @@
 import mcp_server.config as mcfg
 
 import abc
+import numpy as np
+
 
 class BaseReranker(abc.ABC):
 
@@ -37,7 +39,7 @@ class CEReranker(BaseReranker):
             key=lambda x: x[0],
             reverse=True,
         )
-        return results[:(mcfg.TOP_K)]
+        return results[:mcfg.TOP_K]
 
 
 class SBERTReranker(BaseReranker):
@@ -49,23 +51,40 @@ class SBERTReranker(BaseReranker):
 
     def rerank(self, query: str, file_contents: list[str]) -> list[tuple[float, str]]:
 
-        pairs = [(query, file_content) for file_content in file_contents]
-        scores = self.model.predict(pairs)
-        results = sorted(
-            zip(scores, file_contents),
-            key=lambda x: x[0],
-            reverse=True,
-        )
-        return results[:(mcfg.TOP_K)]
+        from sentence_transformers import util
+
+        query_emb = self.model.encode(query, convert_to_tensor=True)
+        doc_embs = self.model.encode(file_contents, convert_to_tensor=True)
+        
+        cos_vals = util.cos_sim(query_emb, doc_embs)[0].cpu().numpy()
+        
+        sorted_indices = np.argsort(cos_vals)[::-1][:mcfg.TOP_K]
+        results = [(float(cos_vals[idx]), file_contents[idx]) for idx in sorted_indices]
+        return results
 
 
-class MLPReranker(BaseReranker):
+class TrainedReranker(BaseReranker):
     pass
 
 
+RERANKERS = {
+    mcfg.RerankerType.SBERT: SBERTReranker,
+    mcfg.RerankerType.CROSS_ENCODER: CEReranker,
+    mcfg.RerankerType.TRAINED_MODEL: TrainedReranker,
+}
 
-def get_reranker(config: dict) -> BaseReranker:
 
-    model_type = mcfg.MODLE.get("type", "dummy")
-    if model_type == "CrossEncoder":
-        return CEReranker()
+def get_reranker(config: dict | None = None) -> BaseReranker:
+
+    if config:
+        reranker_type = config.get("type", "SBERT")
+    else:
+        reranker_type = mcfg.RERANKER.get("type", "SBERT")
+
+    reranker_type = mcfg.RerankerType(str(reranker_type))
+    
+    try:
+        return RERANKERS[reranker_type]()
+    except:
+        raise ValueError(f"Unknown reranker type: {reranker_type}")
+    
