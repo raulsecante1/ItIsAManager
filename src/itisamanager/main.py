@@ -58,6 +58,5 @@ def aux_main():
 
 
 if __name__ == "__main__":
-    print("main.py 被导入或执行")
     asyncio.run(main())
     

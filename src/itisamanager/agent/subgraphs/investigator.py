@@ -62,7 +62,7 @@ async def build_investigator_subgraph():
         system_msg = {
             "role": "system",
             "content": (
-                "You are a file reader and reranker agent. Use list_readable_files and read_file to read files, and reranker to rerank the files in case there too many files"
+                "You are a file reader and reranker agent. Use list_readable_files and read_file to read files, and reranker to rerank the files in case there too many files(like more than 5 files)"
                 "After reading all files, stop calling tools."
             )
         }

@@ -2,6 +2,12 @@ import mcp_server.config as mcfg
 
 import abc
 import numpy as np
+import pydantic
+
+
+class RerankResult(pydantic.BaseModel):
+    score: float
+    content: str
 
 
 class BaseReranker(abc.ABC):
@@ -19,7 +25,7 @@ class BaseReranker(abc.ABC):
     """
 
     @abc.abstractmethod
-    def rerank(self, query: str, file_contents: list[str]) -> list[tuple[float, str]]:
+    def rerank(self, query: str, file_contents: list[str]) -> list[RerankResult]:
         ...
 
 
@@ -28,18 +34,22 @@ class CEReranker(BaseReranker):
     def __init__(self):
 
         from sentence_transformers import CrossEncoder
-        self.model = CrossEncoder("BAAI/bge-reranker-base")
+        self.model = CrossEncoder("BAAI/bge-reranker-base", backend="onnx")
 
-    def rerank(self, query: str, file_contents: list[str]) -> list[tuple[float, str]]:
+    def rerank(self, query: str, file_contents: list[str]) -> list[RerankResult]:
 
         pairs = [(query, file_content) for file_content in file_contents]
         scores = self.model.predict(pairs)
-        results = sorted(
+        unstructured_results = sorted(
             zip(scores, file_contents),
             key=lambda x: x[0],
             reverse=True,
         )
-        return results[:mcfg.TOP_K]
+        structured_result = []
+        for lft, rit in unstructured_results[:mcfg.TOP_K]:
+            structured_result.append(RerankResult(score=lft, content=rit))
+
+        return structured_result
 
 
 class SBERTReranker(BaseReranker):
@@ -47,9 +57,9 @@ class SBERTReranker(BaseReranker):
     def __init__(self):
 
         from sentence_transformers import SentenceTransformer
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.model = SentenceTransformer("all-MiniLM-L6-v2", backend="onnx")
 
-    def rerank(self, query: str, file_contents: list[str]) -> list[tuple[float, str]]:
+    def rerank(self, query: str, file_contents: list[str]) -> list[RerankResult]:
 
         from sentence_transformers import util
 
@@ -59,8 +69,12 @@ class SBERTReranker(BaseReranker):
         cos_vals = util.cos_sim(query_emb, doc_embs)[0].cpu().numpy()
         
         sorted_indices = np.argsort(cos_vals)[::-1][:mcfg.TOP_K]
-        results = [(float(cos_vals[idx]), file_contents[idx]) for idx in sorted_indices]
-        return results
+
+        structured_result = []
+        for idx in sorted_indices:
+            structured_result.append(RerankResult(score=float(cos_vals[idx]), content=file_contents[idx]))
+
+        return structured_result
 
 
 class TrainedReranker(BaseReranker):
@@ -74,6 +88,8 @@ RERANKERS = {
 }
 
 
+
+
 def get_reranker(config: dict | None = None) -> BaseReranker:
 
     if config:
@@ -85,6 +101,6 @@ def get_reranker(config: dict | None = None) -> BaseReranker:
     
     try:
         return RERANKERS[reranker_type]()
-    except:
+    except KeyError:
         raise ValueError(f"Unknown reranker type: {reranker_type}")
     

@@ -15,4 +15,4 @@ class RerankerType(StrEnum):
     SBERT = "SBERT"
 
 TOP_K = 5
-RERANKER = {"type": RerankerType.CROSS_ENCODER, "model": "model.pt"}
+RERANKER = {"type": RerankerType.SBERT, "model": "model.pt"}

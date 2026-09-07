@@ -10,7 +10,7 @@ import mcp_server.config as mcfg
 import mcp_server.tools.reranker as mtrk
 
 
-def rerank_documents(query: str, file_contents: list[str]) -> list[tuple[float, str]]:
+def rerank_documents(query: str, file_contents: list[str]) -> list[mtrk.RerankResult]:
     """
     Use this function to rerank the documents you just read according to their relevance with the user query
     """
