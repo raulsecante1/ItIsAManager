@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, Annotated, List
+from typing import TypedDict, Annotated
 import operator
 
 import itisamanager.schema as isma
@@ -20,7 +20,7 @@ class InvestigatorState(TypedDict):
 
     messages: Annotated[list, add_messages]
     directory_path: str
-    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    knowledge_chunks: Annotated[list[isma.KnowledgeChunk], operator.add]
 
 
 def extract_knowledge_chunk_node(state: InvestigatorState) -> dict:

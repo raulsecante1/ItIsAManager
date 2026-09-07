@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, Annotated, List
+from typing import TypedDict, Annotated
 import operator
 
 import itisamanager.schema as isma
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class SynthesizerState(TypedDict):
 
-    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    knowledge_chunks: Annotated[list[isma.KnowledgeChunk], operator.add]
     articleOutline: isma.ArticleOutline | None
 
 

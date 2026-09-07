@@ -5,7 +5,6 @@ import logging
 
 import itisamanager.schema as isma
 import itisamanager.config.settings as iset
-import itisamanager.tools.agent_tools as iagt
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, List, Annotated
+from typing import TypedDict, Annotated
 import operator
 
 from langchain.agents import AgentState
@@ -18,7 +18,7 @@ class AgentState(TypedDict):
 
     messages: Annotated[list, add_messages]
     directory_path: str
-    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    knowledge_chunks: Annotated[list[isma.KnowledgeChunk], operator.add]
     articleOutline: isma.ArticleOutline | None
     finalDraft: isma.FinalDraft | None
     score: float

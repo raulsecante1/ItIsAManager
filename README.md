@@ -98,6 +98,7 @@ project-root/
 │       ├── __init__.py
 │       ├── tools/                      # mcp tools
 │       │   ├── io_tools.py             # I/O tools
+│       │   ├── reranker.py             # embedding reranker tool
 │       │   └── reader.py               # auxiliar functions for io_tools.py
 │       ├── config.py                   # mcp configuration
 │       ├── main.py                     #
