@@ -147,7 +147,7 @@ def synthesize_outline(all_chunks: list[isma.KnowledgeChunk], user_query: str | 
     return structured_llm.invoke(outline_prompt)
 
 
-def generate_article(outline: isma.ArticleOutline, feedback: str | None = None, user_query: str | None = None) -> isma.FinalDraft:
+def generate_article(all_chunks: list[isma.KnowledgeChunk], outline: isma.ArticleOutline, feedback: str | None = None, user_query: str | None = None) -> isma.FinalDraft:
     """
     generate final draft of the article from the outline and the chapters using LLM model not agent
     """
@@ -155,6 +155,10 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None, 
     all_chapters = ""
     for chapter in outline.chapters:
         all_chapters += f"{chapter.title}: {chapter.key_points}; "
+    all_content = ""
+    for chunk in all_chunks:
+        all_content += f"{chunk.title}: {chunk.summary}; key terms: {chunk.key_terms}\n"
+
     article_prompt = f"""
     You are a knowledge article generation expert.
     Read the following outline and chapters then generate an article about their content, and if user query or feedback present, have them under consideration too.
@@ -166,6 +170,9 @@ def generate_article(outline: isma.ArticleOutline, feedback: str | None = None, 
 
     The chapters:
     {all_chapters}
+
+    The knowledge fragments:
+    {all_content}
     """
 
     if feedback:

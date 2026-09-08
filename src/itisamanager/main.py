@@ -30,7 +30,7 @@ async def main():
             "feedback": "",
         }
         config = {
-            "recursion_limit": 13,  # 3 circles at maximum
+            "recursion_limit": 16,  # 13 steps = 3 circles at maximum, plus 3 auto retries
             "configurable": {
                 "thread_id": "1"
             }

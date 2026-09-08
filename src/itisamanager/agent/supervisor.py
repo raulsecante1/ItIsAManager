@@ -1,6 +1,7 @@
 from langchain.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END, add_messages
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import RetryPolicy
 
 import itisamanager.schema as isma
 import itisamanager.agent.subgraphs as iasb
@@ -44,7 +45,7 @@ async def build_supervisor_graph():
     supervisor_builder.add_node("investigator", await iasb.investigator.build_investigator_subgraph())
     supervisor_builder.add_node("synthesizer", iasb.synthesizer.build_synthesizer_graph())
     supervisor_builder.add_node("generator", iasb.generator.build_article_graph())
-    supervisor_builder.add_node("reviewer", iasb.reviewer.build_rubric_graph())
+    supervisor_builder.add_node("reviewer", iasb.reviewer.build_rubric_graph(), retry_policy=RetryPolicy(max_attempts=3))
     supervisor_builder.add_node("writer", iasb.writer.build_writer_graph())
 
     supervisor_builder.add_edge(START, "investigator")
