@@ -28,7 +28,7 @@ Now i need you to read the files at "documents/" then generate an article based 
 
 Along with a path `{working_directory}/documents`
 
-Then calls the `investigator` sub graph, which has access to a mcp server where holds `read_file` and `list_readable_file` tools, and a local tool `read_note`, then the invesigator will start the loop of read files, think if need to read more, read file,... until it decides that there are enough files readed, it will call the `read_note` tool, where some `llm_models` will be started  to read the `file_content` of the readed file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
+Then calls the `investigator` sub graph, which has access to a mcp server where holds `read_file`, `list_readable_file` and `rerank_documents` tools, and a local tool `read_note`, then the invesigator will start the loop of read files, think if need to read more, read file,... until it decides that there are enough files readed, and if there are too many irrelevant documents the agent may call the `rerank_documents` to list the top 5 results, then it will call the `read_note` tool, where some `llm_models` will be started  to read the `file_content` of the readed file, and generate the `knowledge_chunk` based on the `exact_content` read by the `llm_models`.
 
 After that is the `synthesizer` sub graph, where some other `llm_models` will be started to generate `outline`, `chapter`s based on the `knowledge_chunk`.
 
@@ -98,6 +98,7 @@ project-root/
 │       ├── __init__.py
 │       ├── tools/                      # mcp tools
 │       │   ├── io_tools.py             # I/O tools
+│       │   ├── reranker.py             # embedding reranker tool
 │       │   └── reader.py               # auxiliar functions for io_tools.py
 │       ├── config.py                   # mcp configuration
 │       ├── main.py                     #

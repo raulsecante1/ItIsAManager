@@ -1,11 +1,11 @@
 import logging
-from typing import TypedDict, Annotated, List
+from typing import TypedDict, Annotated
 import operator
 
 import itisamanager.schema as isma
 import itisamanager.tools.agent_tools as iagt
 
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph, START, END, add_messages
 
 
 logger = logging.getLogger(__name__)
@@ -13,14 +13,23 @@ logger = logging.getLogger(__name__)
 
 class SynthesizerState(TypedDict):
 
-    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    knowledge_chunks: Annotated[list[isma.KnowledgeChunk], operator.add]
     articleOutline: isma.ArticleOutline | None
+    messages: Annotated[list, add_messages]
 
 
 def outline_node(state: SynthesizerState) -> dict:
 
     knowledge_chunk = state["knowledge_chunks"]
-    outline = iagt.synthesize_outline(knowledge_chunk)
+    user_messages = [
+        message
+        for message in state["messages"]
+        if message.type == "human"
+    ]
+
+    query = user_messages[-1].content if user_messages else None
+
+    outline = iagt.synthesize_outline(knowledge_chunk, query)
 
 
     return {"articleOutline": outline}

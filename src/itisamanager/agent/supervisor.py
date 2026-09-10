@@ -1,15 +1,24 @@
 from langchain.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END, add_messages
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import RetryPolicy, default_retry_on
 
 import itisamanager.schema as isma
 import itisamanager.agent.subgraphs as iasb
 
+from pydantic import ValidationError
 import logging
 from typing import TypedDict, List, Annotated
 import operator
 
 logger = logging.getLogger(__name__)
+
+
+def custom_retry_on(exc: Exception) -> bool:
+
+    if isinstance(exc, ValidationError): # retry on pydantic validation error
+        return True
+    return default_retry_on(exc)
 
 
 class SupervisorState(TypedDict):
@@ -40,11 +49,16 @@ def rubric_conditional_branch(state: SupervisorState) -> str:
 
 async def build_supervisor_graph():
 
+    retry_policy = RetryPolicy(
+        max_attempts=3,
+        retry_on=custom_retry_on
+    )
+
     supervisor_builder = StateGraph(SupervisorState)
     supervisor_builder.add_node("investigator", await iasb.investigator.build_investigator_subgraph())
     supervisor_builder.add_node("synthesizer", iasb.synthesizer.build_synthesizer_graph())
     supervisor_builder.add_node("generator", iasb.generator.build_article_graph())
-    supervisor_builder.add_node("reviewer", iasb.reviewer.build_rubric_graph())
+    supervisor_builder.add_node("reviewer", iasb.reviewer.build_rubric_graph(), retry_policy=retry_policy)
     supervisor_builder.add_node("writer", iasb.writer.build_writer_graph())
 
     supervisor_builder.add_edge(START, "investigator")

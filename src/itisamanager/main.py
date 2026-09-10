@@ -12,16 +12,16 @@ logger = logging.getLogger(__name__)
 logger.info("AI Agent started")
 
 
-prompt = f"""
+user_prompt = f"""
 You are an expert article generation agent.
-Now i need you to read the files at "documents/" then generate an article based on it
+Now i need you to read the files then generate an article about how to use EU4 console command build a strong country
 """
 
 
 async def main():
     try:
         initial_state = {
-            "messages": [("user", "read the files at documents/ and generate an article based on that")],
+            "messages": [("user", user_prompt)],
             "directory_path": str(iset.PROJECT_ROOT / "documents"),
             "knowledge_chunks": [],
             "articleOutline": None,
@@ -30,7 +30,7 @@ async def main():
             "feedback": "",
         }
         config = {
-            "recursion_limit": 13,  # 3 circles at maximum
+            "recursion_limit": 16,  # 13 steps = 3 circles at maximum, plus 3 auto retries
             "configurable": {
                 "thread_id": "1"
             }
@@ -58,6 +58,5 @@ def aux_main():
 
 
 if __name__ == "__main__":
-    print("main.py 被导入或执行")
     asyncio.run(main())
     

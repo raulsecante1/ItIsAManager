@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, Annotated, List
+from typing import TypedDict, Annotated
 import operator
 
 import itisamanager.schema as isma
@@ -20,7 +20,7 @@ class InvestigatorState(TypedDict):
 
     messages: Annotated[list, add_messages]
     directory_path: str
-    knowledge_chunks: Annotated[List[isma.KnowledgeChunk], operator.add]
+    knowledge_chunks: Annotated[list[isma.KnowledgeChunk], operator.add]
 
 
 def extract_knowledge_chunk_node(state: InvestigatorState) -> dict:
@@ -62,8 +62,8 @@ async def build_investigator_subgraph():
         system_msg = {
             "role": "system",
             "content": (
-                "You are a file reader agent. Use list_readable_files and read_file to read files. "
-                "After reading all files, say 'I have finished reading all files.' and stop calling tools."
+                "You are a file reader and reranker agent. Use list_readable_files and read_file to read files, and reranker to rerank the files in case there too many files(like more than 5 files)"
+                "After reading all files, stop calling tools."
             )
         }
         messages = [system_msg] + state["messages"]

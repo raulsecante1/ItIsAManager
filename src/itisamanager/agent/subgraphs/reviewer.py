@@ -1,11 +1,10 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph, START, END, add_messages
 
-from typing import TypedDict
+from typing import TypedDict, Annotated
 import logging
 
 import itisamanager.schema as isma
 import itisamanager.config.settings as iset
-import itisamanager.tools.agent_tools as iagt
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +13,7 @@ class RubricState(TypedDict):
 
     articleOutline: isma.ArticleOutline | None
     finalDraft: isma.FinalDraft | None
+    messages: Annotated[list, add_messages]
     score: float
     feedback: str
 
@@ -21,7 +21,15 @@ class RubricState(TypedDict):
 def rubirc_node(state: RubricState) -> dict:
 
     article = state["finalDraft"]
-    complete_prompt = f"{iset.RUBRIC_PROMPT}\n\nArticle: \n{article.content}"
+    user_messages = [
+        message
+        for message in state["messages"]
+        if message.type == "human"
+    ]
+
+    query = user_messages[-1].content if user_messages else None
+
+    complete_prompt = f"{iset.RUBRIC_PROMPT}\n\nArticle: \n{article.content}" + (f"\n\nUser query: {query}" if query else "")
 
     reubric_evaluator = iset.MAIN_AGENT_LLM.with_structured_output(isma.Rubric)
 
