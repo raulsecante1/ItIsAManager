@@ -7,7 +7,7 @@ Multi-Agent Personal Knowledge Manager (MPKM)
 
 ## What it is?
 
-MPKN is a Multi-agent project based on  *LangChain*, that able to read the documents, notes, summarize the key points, and then generate new contests based on the summaries.
+MPKM is a Multi-agent project based on  *LangGraph*, that able to read the documents, notes, summarize the key points, and then generate new contests based on the summaries according to the user query.
 
 ## Quick Start
 
@@ -103,6 +103,25 @@ project-root/
 │       ├── config.py                   # mcp configuration
 │       ├── main.py                     #
 │       └── server.py                   # server
+│                                       #
+├──benchmark/
+│   ├── dataset/
+│   │   ├── questions.jsonl             # example test sets
+│   │   └── gold_answers.jsonl          # answers
+│   │                                   #
+│   ├── systems/                        #
+│   │   ├── schema.py                   # test output schema
+│   │   ├── base_llm.py                 # control group 1 directly calling LLM
+│   │   ├── base_rag.py                 # control group 2 RAG without using reranker
+│   │   └── mpkm_full.py                # 
+│   │                                   #
+│   ├── metrics/                        #
+│   │   ├── answer_accuracy.py          #
+│   │   └── hallucination.py            #
+│   │                                   #
+│   ├── main.py                         # main entrance
+│   ├── results/                        #
+│   └── config.py                       #
 │
 └── documents/                          #
 ```

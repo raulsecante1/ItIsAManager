@@ -51,6 +51,5 @@ def init_mcp():
             media_type="text/markdown" if file_path.suffix == ".md" else "text/plain"
         )
     '''
-
-    print("Registered routes:", mcp._routes if hasattr(mcp, '_routes') else "No _routes")
+    
     return mcp

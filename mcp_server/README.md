@@ -17,6 +17,7 @@ project-root/
 │       ├── tools/                      # mcp tools
 │       │   ├── io_tools.py             # I/O tools
 │       │   └── reader.py               # auxiliar functions for io_tools.py
+│       │   ├── reranker.py             # embedding reranker tool
 │       ├── config.py                   # mcp configuration
 │       ├── main.py                     #
 │       └── server.py                   # server
