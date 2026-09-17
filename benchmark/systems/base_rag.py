@@ -12,6 +12,8 @@ def pure_llm_rag(user_query: str) -> bsma.SystemOutput:
 
     retrived_info = []
 
+    ...
+
     prompt = [
         {
             "role": "system",

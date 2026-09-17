@@ -161,7 +161,7 @@ def generate_article(all_chunks: list[isma.KnowledgeChunk], outline: isma.Articl
 
     article_prompt = f"""
     You are a knowledge article generation expert.
-    Read the following outline and chapters then generate an article about their content, and if user query or feedback present, have them under consideration too.
+    Read the following outline and chapters then generate an article about their content, and if a user query or a feedback is present, have them under consideration too.
     The article has a format:
     - 'content': The content of the article
 
