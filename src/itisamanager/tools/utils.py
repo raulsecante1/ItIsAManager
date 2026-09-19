@@ -10,7 +10,7 @@ def chunking(sourcefile: str) -> list[isma.ChunkText]:
     chop the content into chunks
     """
     splitter = langchain_text_splitters.RecursiveCharacterTextSplitter(
-        chunk_size=1000,
+        chunk_size=3000,
         chunk_overlap=100,
     )
 
