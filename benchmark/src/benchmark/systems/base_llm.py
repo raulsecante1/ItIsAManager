@@ -1,7 +1,7 @@
 import logging
 import time
 
-import src.itisamanager.tools.agent_tools as sita
+import itisamanager.config.settings as sics
 import benchmark.systems.schema as bsma
 
 logger = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def pure_llm_call(user_query: str) -> bsma.SystemOutput:
 
-    llm_model = sita.MAIN_AGENT_LLM
+    llm_model = sics.MAIN_AGENT_LLM
 
     prompt = [
         {

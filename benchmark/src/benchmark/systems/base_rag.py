@@ -3,8 +3,7 @@ import time
 import pathlib
 import tiktoken
 
-import src.itisamanager.tools.agent_tools as sita
-import src.itisamanager.config.settings as sics
+import itisamanager.config.settings as sics
 import benchmark.systems.schema as bsma
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ def direct_invoke(full_text: str, user_query: str) -> bsma.SystemOutput:
         }
     ]
 
-    llm_model = sita.MAIN_AGENT_LLM
+    llm_model = sics.MAIN_AGENT_LLM
 
     start = time.perf_counter()
     call_response = llm_model.invoke(prompt)
@@ -131,7 +130,7 @@ def map_reduce(size_content_pair, user_query: str) -> bsma.SystemOutput:
         for batch_text in batch
     ]
 
-    llm_model = sita.MAIN_AGENT_LLM
+    llm_model = sics.MAIN_AGENT_LLM
 
     start = time.perf_counter()
     preflatten_response = llm_model.batch(
@@ -149,9 +148,9 @@ def map_reduce(size_content_pair, user_query: str) -> bsma.SystemOutput:
     full_synthesized_text_size = len(encoder.encode(full_synthesized_text)) # llm will make mistakes
 
     if full_synthesized_text_size > capcity:
-        final_result = one_term_greedy(full_synthesized_text, user_query)
-    else:
-        final_result = direct_invoke(full_synthesized_text, user_query)
+        token_list = encoder.encode(full_synthesized_text)
+        full_synthesized_text = encoder.decode(token_list[:capcity])
+    final_result = direct_invoke(full_synthesized_text, user_query)
 
     elapsed  = time.perf_counter() - start
 

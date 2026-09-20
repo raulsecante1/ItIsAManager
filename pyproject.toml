@@ -26,4 +26,5 @@ build-backend = "uv_build"
 [tool.uv.workspace]
 members = [
     "mcp_server",
+    "benchmark",
 ]

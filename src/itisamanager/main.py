@@ -41,7 +41,7 @@ async def main():
 
         logger.info("Finished: ")
         logger.info(f"outline: {final_state.get('articleOutline')}")
-        logger.info(f"final draft (first 100 characters): {final_state.get('finalDraft', {}).content[:100] if final_state.get('finalDraft') else '无'}")
+        logger.info(f"final draft (first 100 characters): {final_state.get('finalDraft', {}).content[:100] if final_state.get('finalDraft') else ''}")
         logger.info(f"score: {final_state.get('score')}")
 
         print(f"mermaid chart: \n{agent_graph.get_graph().draw_mermaid()}")
