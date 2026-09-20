@@ -1,8 +1,12 @@
 # Benchmark
 
-## What it is ?
+## What it is?
 
 The project's associated benchmark framework along with some simple test sets
+
+## How to use?
+
+Run `uv run benchmark` if you have `uv` installed, otherwise go to `src/benchmark` and run `python main.py`
 
 ## Sub project structure
 ```
