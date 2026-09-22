@@ -26,6 +26,7 @@ async def aux_mpkm_call(user_query: str) -> bsma.SystemOutput:
         "finalDraft": None,
         "score": 0.0,
         "feedback": "",
+        "skip_writing": True,
     }
     config = {
         "recursion_limit": 16,  # 13 steps = 3 circles at maximum, plus 3 auto retries

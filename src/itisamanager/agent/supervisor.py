@@ -30,15 +30,21 @@ class SupervisorState(TypedDict):
     finalDraft: isma.FinalDraft | None
     score: float
     feedback: str
+    skip_writing: bool = False
 
 
 def rubric_conditional_branch(state: SupervisorState) -> str:
 
     rubric_score = state["score"]
+    skip_writing = state["skip_writing"]
 
-    if rubric_score >= 8:
-        logger.info(f"score {rubric_score} >= 8, write into file")
-        return "write"
+    if rubric_score >= 8 and not skip_writing:
+        if skip_writing:
+            logger.info(f"score {rubric_score} >= 8, but skip writing")
+            return "end"
+        else:
+            logger.info(f"score {rubric_score} >= 8, write into file")
+            return "write"
     elif rubric_score >= 5:
         logger.info(f"score {rubric_score} between 5, 8 regenerate the article according to the feedback")
         return "revise"
@@ -72,7 +78,8 @@ async def build_supervisor_graph():
         {
             "write": "writer",
             "revise": "generator",
-            "outline": "synthesizer"
+            "outline": "synthesizer",
+            "end":END
             }
     )
 
