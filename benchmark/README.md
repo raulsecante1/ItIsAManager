@@ -27,7 +27,7 @@ benchmark/
 │   │   └── hallucination.py             #
 │   └── config.py                        #
 │                                        #
-└── results                              #
+└── results                              # results of the historical benchmark tests
 ```
 
 

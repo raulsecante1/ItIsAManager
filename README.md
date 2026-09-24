@@ -64,64 +64,64 @@ flowchart TB
 
 ```
 project-root/
-├── pyproject.toml                       #
-├── uv.lock                              # 
-├── docker-compose.yml                   #
+├── pyproject.toml                           #
+├── uv.lock                                  # 
+├── docker-compose.yml                       #
 │
 ├── src/
-│   └── itisamanager/                    # 
-│       ├── pyproject.toml               # 
-│       ├── Dockerfile                   # 
-│       └── src/itisamanager/            # 
-│           ├── __init__.py              #
-│           ├── main.py                  #
-│           ├── config/                  #
-│           │   ├── settings.py          # settings
-│           │   └── logging_config       # log configuration
+│   └── itisamanager/                        # 
+│       ├── pyproject.toml                   # 
+│       ├── Dockerfile                       # 
+│       └── src/itisamanager/                # 
+│           ├── __init__.py                  #
+│           ├── main.py                      #
+│           ├── config/                      #
+│           │   ├── settings.py              # settings
+│           │   └── logging_config           # log configuration
 │           ├── agent/
-│           │   ├── supervisor.py        # supervisor graph
+│           │   ├── supervisor.py            # supervisor graph
 │           │   └── subgraphs/
-│           │       ├── investigator.py  # investigator subgraph
-│           │       ├── synthesizer.py   # synthesizer subgraph
-│           │       ├── reviewer.py      # reviewer subgraph
-│           │       ├── generator.py     # generator subgraph
-│           │       └── writer.py        # writer subgraph
+│           │       ├── investigator.py      # investigator subgraph
+│           │       ├── synthesizer.py       # synthesizer subgraph
+│           │       ├── reviewer.py          # reviewer subgraph
+│           │       ├── generator.py         # generator subgraph
+│           │       └── writer.py            # writer subgraph
 │           └── tools/
-│               ├── agent_tool.py        # tools of llm calling
-│               ├── utils.py             # varios non-llm utilities
-│               └── reader               # file reading utilities
+│               ├── agent_tool.py            # tools of llm calling
+│               ├── utils.py                 # varios non-llm utilities
+│               └── reader                   # file reading utilities
 │    
-├── mcp-server/                          #
-│   ├── pyproject.toml                   #
-│   ├── Dockerfile                       #
+├── mcp-server/                              #
+│   ├── pyproject.toml                       #
+│   ├── Dockerfile                           #
 │   └── src/mcp_server/
 │       ├── __init__.py
-│       ├── tools/                       # mcp tools
-│       │   ├── io_tools.py              # I/O tools
-│       │   ├── reranker.py              # embedding reranker tool
-│       │   └── reader.py                # auxiliar functions for io_tools.py
-│       ├── config.py                    # mcp configuration
-│       ├── main.py                      #
-│       └── server.py                    # server
-│                                        #
+│       ├── tools/                           # mcp tools
+│       │   ├── io_tools.py                  # I/O tools
+│       │   ├── reranker.py                  # embedding reranker tool
+│       │   └── reader.py                    # auxiliar functions for io_tools.py
+│       ├── config.py                        # mcp configuration
+│       ├── main.py                          #
+│       └── server.py                        # server
+│                                            #
 ├──benchmark/
 │   ├── dataset/
-│   │   ├── questions.jsonl              # example test sets
-│   │   └── gold_answers.jsonl           # answers
-│   │                                    #
-│   ├── src/benchmark/                   #
-│   │   ├── systems/                     #
-│   │   │   ├── schema.py                # output schema
-│   │   │   ├── base_llm.py              # control group 1 directly calling LLM
-│   │   │   ├── base_rag.py              # control group 2 RAG without using reranker
-│   │   │   └── mpkm_full.py             # 
-│   │   ├── main.py                      # main entrance
+│   │   ├── questions.jsonl                  # example test sets
+│   │   └── gold_answers.jsonl               # answers
+│   │                                        #
+│   ├── src/benchmark/                       #
+│   │   ├── systems/                         #
+│   │   │   ├── schema.py                    # output schema
+│   │   │   ├── base_llm.py                  # control group 1 directly calling LLM
+│   │   │   ├── base_rag.py                  # control group 2 RAG without using reranker
+│   │   │   └── mpkm_full.py                 # 
+│   │   ├── main.py                          # main entrance
 │   │   ├── metrics/                         #
 │   │   │   ├── answer_accuracy.py           #
 │   │   │   └── hallucination.py             #
-│   │   └── config.py                    #
-│   │                                    #
-│   └── results                          #
+│   │   └── config.py                        #
+│   │                                        #
+│   └── results                              #
 │
-└── documents/                           #
+└── documents/                               #
 ```

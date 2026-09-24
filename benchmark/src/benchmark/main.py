@@ -17,7 +17,7 @@ def main():
     with path.open("r", encoding="utf-8") as f:
         user_query_dicts = [json.loads(line) for line in f if line.strip()]
 
-    user_query_dicts = [user_query_dicts[1]] # test, read line 2, delete this
+    user_query_dicts = [user_query_dicts[1]] # test, read line 2, delete
 
     for user_query_dict in user_query_dicts:
 
@@ -26,6 +26,14 @@ def main():
         facts_list = [the_dict["fact"] for the_dict in facts_dict_list]
     
         importance = [the_dict["importance"] for the_dict in facts_dict_list]
+
+        text1_path = results_path / "yyy.txt"
+
+        text1 = text1_path.read_text(encoding="utf-8")
+
+        KIC_res1 = bmea.kic(text1, facts_list, importance)
+
+        return KIC_res1
 
         #---
         
