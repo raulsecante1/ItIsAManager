@@ -106,8 +106,7 @@ project-root/
 │                                            #
 ├──benchmark/
 │   ├── dataset/
-│   │   ├── questions.jsonl                  # example test sets
-│   │   └── gold_answers.jsonl               # answers
+│   │   └── questions.jsonl                  # example test sets
 │   │                                        #
 │   ├── src/benchmark/                       #
 │   │   ├── systems/                         #

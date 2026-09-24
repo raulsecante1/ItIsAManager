@@ -4,7 +4,24 @@
 
 The project's associated benchmark framework along with some simple test sets
 
+### What it measures
+
+Three systems are evaluated side by side:
+
+| System | Description |
+| --- | --- |
+| `base_llm` | Directly calls the LLM with no document retrieval |
+| `base_rag` | Reads all documents and passes them to the LLM (no reranking, no agents) |
+| `mpkm_full` | The full MPKM pipeline (Investigator → Synthesizer → Generator → Reviewer) |
+
+The primary metric is **KIC (Key Information Coverage)** — the weighted fraction of predefined key facts that appear in the generated article.
+
 ## How to use?
+
+Prerequisites:
+
+- The MCP server must be running (`cd mcp-server && uv run mcp_server`)
+- Environment variables for the LLM provider must be set (see `src/itisamanager/config/settings.py`)
 
 Run `uv run benchmark` if you have `uv` installed, otherwise go to `src/benchmark` and run `python main.py`
 
@@ -12,8 +29,7 @@ Run `uv run benchmark` if you have `uv` installed, otherwise go to `src/benchmar
 ```
 benchmark/
 ├── dataset/
-│   ├── questions.jsonl                  # example test sets
-│   └── gold_answers.jsonl               # answers
+│   └── questions.jsonl                  # questions + reference answers + key_facts
 │                                        #
 ├── src/benchmark/                       #
 │   ├── systems/                         #
@@ -30,5 +46,21 @@ benchmark/
 └── results                              # results of the historical benchmark tests
 ```
 
+## Dataset format
+
+Each line in `dataset/questions.jsonl` is a self-contained test case:
+
+```json
+{
+  "id": "question_00001",
+  "user_query": "...",
+  "category": "how_to | cross_doc_synthesis | ...",
+  "difficulty": "T1",
+  "reference_answer": "...",
+  "key_facts": [
+    {"fact_id": "fact_001", "fact": "...", "importance": 1.0}
+  ]
+}
+```
 
 
