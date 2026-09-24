@@ -116,10 +116,10 @@ project-root/
 │   │   │   ├── base_rag.py              # control group 2 RAG without using reranker
 │   │   │   └── mpkm_full.py             # 
 │   │   ├── main.py                      # main entrance
+│   │   ├── metrics/                         #
+│   │   │   ├── answer_accuracy.py           #
+│   │   │   └── hallucination.py             #
 │   │   └── config.py                    #
-│   ├── metrics/                         #
-│   │   ├── answer_accuracy.py           #
-│   │   └── hallucination.py             #
 │   │                                    #
 │   └── results                          #
 │

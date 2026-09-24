@@ -38,7 +38,7 @@ def rubric_conditional_branch(state: SupervisorState) -> str:
     rubric_score = state["score"]
     skip_writing = state["skip_writing"]
 
-    if rubric_score >= 8 and not skip_writing:
+    if rubric_score >= 8:
         if skip_writing:
             logger.info(f"score {rubric_score} >= 8, but skip writing")
             return "end"

@@ -12,22 +12,22 @@ Run `uv run benchmark` if you have `uv` installed, otherwise go to `src/benchmar
 ```
 benchmark/
 ├── dataset/
-│   ├── questions.jsonl              # example test sets
-│   └── gold_answers.jsonl           # answers
-│                                    #
-├── src/benchmark/                   #
-│   ├── systems/                     #
-│   │   ├── schema.py                # output schema
-│   │   ├── base_llm.py              # control group 1 directly calling LLM
-│   │   ├── base_rag.py              # control group 2 RAG without using reranker
-│   │   └── mpkm_full.py             # 
-│   ├── main.py                      # main entrance
-│   └── config.py                    #
-├── metrics/                         #
-│   ├── answer_accuracy.py           #
-│   └── hallucination.py             #
-│                                    #
-└── results                          #
+│   ├── questions.jsonl                  # example test sets
+│   └── gold_answers.jsonl               # answers
+│                                        #
+├── src/benchmark/                       #
+│   ├── systems/                         #
+│   │   ├── schema.py                    # output schema
+│   │   ├── base_llm.py                  # control group 1 directly calling LLM
+│   │   ├── base_rag.py                  # control group 2 RAG without using reranker
+│   │   └── mpkm_full.py                 # 
+│   ├── main.py                          # main entrance
+│   ├── metrics/                         #
+│   │   ├── answer_accuracy.py           #
+│   │   └── hallucination.py             #
+│   └── config.py                        #
+│                                        #
+└── results                              #
 ```
 
 

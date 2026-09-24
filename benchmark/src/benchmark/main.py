@@ -1,23 +1,52 @@
 import benchmark.systems as bsys
 import benchmark.config as bcfg
+import benchmark.metrics.answer_accuracy as bmea
 
 import logging
 import json
-from pathlib import Path
 import uuid
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    path = Path("../dataset/questions.jsonl")
+    path = bcfg.PROJECT_ROOT / "dataset/questions.jsonl"
 
     results_path = path.parent.parent / "results"
 
     with path.open("r", encoding="utf-8") as f:
-        user_querys = [json.loads(line) for line in f]
+        user_query_dicts = [json.loads(line) for line in f if line.strip()]
 
-    for user_query in user_querys:
+    user_query_dicts = [user_query_dicts[1]] # test, read line 2, delete this
+
+    for user_query_dict in user_query_dicts:
+
+        user_query = user_query_dict["user_query"]
+        facts_dict_list = user_query_dict["key_facts"]
+        facts_list = [the_dict["fact"] for the_dict in facts_dict_list]
+    
+        importance = [the_dict["importance"] for the_dict in facts_dict_list]
+
+        #---
+        
+        text1_path = results_path / "base_llm_d4a3d68e.md"
+        text1 = text1_path.read_text(encoding="utf-8")
+
+        KIC_res1 = bmea.kic(text1, facts_list, importance)
+
+        text2_path = results_path / "base_rag_d4a3d68e.md"
+        text2 = text2_path.read_text(encoding="utf-8")
+
+        KIC_res2 = bmea.kic(text2, facts_list, importance)
+
+        text3_path = results_path / "mpkm_full_d4a3d68e.md"
+        text3 = text3_path.read_text(encoding="utf-8")
+
+        KIC_res3 = bmea.kic(text3, facts_list, importance)
+
+        return (KIC_res1, KIC_res2, KIC_res3)
+        
+        #---
 
         file_id = uuid.uuid4().hex[:8]
 
@@ -46,8 +75,9 @@ def main():
             encoding="utf-8",
         )
 
-        logger.info(f"[write_article] File written")
+        logger.info(f"File written")
 
+        '''
         judger_query = f"""
         You are an expert article context quality judger.
         According to the given user query, judge which of the provided article has the best quality.
@@ -62,6 +92,7 @@ def main():
         call_response = judger_model.invoke(judger_query)
 
         print(call_response.content)
+        '''
 
 
 if __name__ == "__main__":

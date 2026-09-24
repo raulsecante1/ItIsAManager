@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import pathlib
 
 from langchain_openrouter import ChatOpenRouter
 
@@ -31,3 +32,6 @@ JUDGER_LLM = ChatOpenRouter(
         "exclude": True, 
     },
 )
+
+############################## Path ##############################
+PROJECT_ROOT = pathlib.Path(__file__).parent.parent.parent
