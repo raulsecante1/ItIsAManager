@@ -47,6 +47,8 @@ uvx.exe
 # Logs
 *.log
 
-# test txts, mds and generated article
+# test txts, mds; benchmark datasets/results and generated article
 /documents
 /output
+/benchmark/results/*md
+/benchmark/dataset
